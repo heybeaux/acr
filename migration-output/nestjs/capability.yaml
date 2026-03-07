@@ -1,0 +1,48 @@
+name: nestjs
+type: capability
+version: 0.1.0
+description: "NestJS backend development patterns for WhaleHawk. Use when scaffolding modules/services/controllers, implementing guards/interceptors, integrating Prisma, writing tests, creating custom decorators..."
+
+provides:
+  - nestjs
+  # TODO: Add more specific provides tags
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 15
+  summary: 80
+  standard: 331
+  # deep: 662  # Uncomment and create deep.md if needed
+
+activation:
+  triggers:
+    - type: pattern
+      match: "nestjs"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    # TODO: Extract the core behavioral instructions from standard.md
+    # This should be the irreducible "how to do the thing" essence.
+    See standard.md for full instructions.
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

@@ -1,0 +1,48 @@
+name: prisma-gen
+type: capability
+version: 0.1.0
+description: "Generate Prisma schema from plain English. Use when you need database models fast without writing boilerplate."
+
+provides:
+  - prisma-gen
+  # TODO: Add more specific provides tags
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 19
+  summary: 54
+  standard: 514
+  # deep: 1028  # Uncomment and create deep.md if needed
+
+activation:
+  triggers:
+    - type: pattern
+      match: "prisma[ -]gen"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    # TODO: Extract the core behavioral instructions from standard.md
+    # This should be the irreducible "how to do the thing" essence.
+    See standard.md for full instructions.
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

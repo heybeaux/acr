@@ -1,0 +1,48 @@
+name: consult
+type: capability
+version: 0.1.0
+description: "Multi-model expert panel consultation. Use when: (1) stuck on a problem for 20+ minutes, (2) architecture or pricing decisions with irreversible consequences, (3) user says /consult, (4) genuine bl..."
+
+provides:
+  - consult
+  # TODO: Add more specific provides tags
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 19
+  summary: 115
+  standard: 721
+  # deep: 1442  # Uncomment and create deep.md if needed
+
+activation:
+  triggers:
+    - type: pattern
+      match: "consult"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    # TODO: Extract the core behavioral instructions from standard.md
+    # This should be the irreducible "how to do the thing" essence.
+    See standard.md for full instructions.
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

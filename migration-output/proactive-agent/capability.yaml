@@ -1,0 +1,48 @@
+name: proactive-agent
+type: capability
+version: 0.1.0
+description: "Transform AI agents from task-followers into proactive partners that anticipate needs and continuously improve. Includes memory architecture with pre-compaction flush (so context survives when the ..."
+
+provides:
+  - proactive-agent
+  # TODO: Add more specific provides tags
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 15
+  summary: 124
+  standard: 2836
+  # deep: 5672  # Uncomment and create deep.md if needed
+
+activation:
+  triggers:
+    - type: pattern
+      match: "proactive[ -]agent"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    # TODO: Extract the core behavioral instructions from standard.md
+    # This should be the irreducible "how to do the thing" essence.
+    See standard.md for full instructions.
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

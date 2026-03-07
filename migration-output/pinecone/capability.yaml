@@ -1,0 +1,48 @@
+name: pinecone
+type: capability
+version: 0.1.0
+description: "Vector database operations with Pinecone for RAG applications. Use when working with embeddings, semantic search, vector upserts/queries/deletes, namespace management, index operations, or building..."
+
+provides:
+  - pinecone
+  # TODO: Add more specific provides tags
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 16
+  summary: 78
+  standard: 596
+  # deep: 1192  # Uncomment and create deep.md if needed
+
+activation:
+  triggers:
+    - type: pattern
+      match: "pinecone"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    # TODO: Extract the core behavioral instructions from standard.md
+    # This should be the irreducible "how to do the thing" essence.
+    See standard.md for full instructions.
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

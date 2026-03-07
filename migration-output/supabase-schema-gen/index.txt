@@ -1,0 +1,1 @@
+supabase-rls-gen: Generate Supabase RLS policies from Prisma schema. Use when securing database.
