@@ -14,10 +14,10 @@ requires:
   context: []
 
 budget:
-  index: 13
-  summary: 69
-  standard: 428
-  # deep: 856  # Uncomment and create deep.md if needed
+  index: 20
+  summary: 95
+  standard: 660
+  # deep: 1320  # Uncomment and create deep.md if needed
 
 activation:
   triggers:

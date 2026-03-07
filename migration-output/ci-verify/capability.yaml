@@ -1,10 +1,7 @@
 name: ci-verify
 type: capability
 version: 0.1.0
-description: ">
-  CI/CD verification pipeline for AI-built code. Independently verifies build,
-  lint, tests, spec compliance, and live endpoint behavior before deploy.
-  Never trust the build agent's self-repor..."
+description: "CI/CD verification pipeline for AI-built code. Independently verifies build, lint, tests, spec compliance, and live endpoint behavior before deploy. Never trust the build agent's self-report."
 
 provides:
   - ci-verify
@@ -17,10 +14,10 @@ requires:
   context: []
 
 budget:
-  index: 15
-  summary: 82
-  standard: 1187
-  # deep: 2374  # Uncomment and create deep.md if needed
+  index: 20
+  summary: 92
+  standard: 1594
+  # deep: 3188  # Uncomment and create deep.md if needed
 
 activation:
   triggers:

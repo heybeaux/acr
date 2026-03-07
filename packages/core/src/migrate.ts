@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { basename, dirname } from 'node:path';
+import { countTokens } from './tokenizer.js';
 
 export interface MigrationResult {
   capabilityYaml: string;
@@ -22,9 +23,8 @@ export function migrateSkill(skillPath: string): MigrationResult {
   const inferredName = name || dirName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
   const inferredDesc = description || extractFirstParagraph(body) || `${inferredName} capability`;
 
-  // Estimate token budget (rough: words * 1.3)
-  const words = body.split(/\s+/).length;
-  const estimatedTokens = Math.ceil(words * 1.3);
+  // Accurate token budget via tiktoken
+  const estimatedTokens = countTokens(body);
 
   // Generate index
   const indexTxt = `${inferredName}: ${truncate(inferredDesc, 80)}`;
@@ -105,12 +105,26 @@ function parseFrontmatter(content: string): {
   const frontmatter = match[1];
   const body = match[2];
 
-  const nameMatch = frontmatter.match(/name:\s*(.+)/);
-  const descMatch = frontmatter.match(/description:\s*"?([^"]+)"?/);
+  const nameMatch = frontmatter.match(/^name:\s*(.+)$/m);
+
+  // Handle YAML block scalars (> or |) for description
+  let description = '';
+  const descBlockMatch = frontmatter.match(/^description:\s*[>|]-?\s*\n([\s\S]*?)(?=^\S|\z)/m);
+  if (descBlockMatch) {
+    // Block scalar — join indented lines
+    description = descBlockMatch[1]
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 0)
+      .join(' ');
+  } else {
+    const descMatch = frontmatter.match(/^description:\s*"?([^"\n]+)"?$/m);
+    description = descMatch?.[1]?.trim() || '';
+  }
 
   return {
     name: nameMatch?.[1]?.trim() || '',
-    description: descMatch?.[1]?.trim() || '',
+    description,
     body,
   };
 }
@@ -160,6 +174,4 @@ function escapeYaml(text: string): string {
   return text.replace(/"/g, '\\"');
 }
 
-function countTokens(text: string): number {
-  return Math.ceil(text.split(/\s+/).length * 1.3);
-}
+// Token counting now uses imported countTokens from tokenizer.ts (tiktoken-based)

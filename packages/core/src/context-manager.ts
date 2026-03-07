@@ -195,6 +195,27 @@ export class ContextManager {
       details: { resolution, zone, budgetUsed: targetBudget, restoredState },
     });
 
+    // Handle dependency enforcement — mount required capabilities
+    if (manifest.requires?.capabilities) {
+      for (const dep of manifest.requires.capabilities) {
+        if (!this.isHotOrWarm(dep.name)) {
+          const depResolution = dep.resolution ?? 'summary';
+          const depResult = await this.mount(dep.name, depResolution);
+          if (!depResult.success) {
+            this.emit({
+              type: 'budget:warning',
+              timestamp: Date.now(),
+              capability: name,
+              details: {
+                reason: `Dependency "${dep.name}" failed to mount`,
+                dependency: dep.name,
+              },
+            });
+          }
+        }
+      }
+    }
+
     // Handle co-activation
     if (manifest.activation?.co_activates) {
       for (const coName of manifest.activation.co_activates) {

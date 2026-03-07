@@ -1,7 +1,7 @@
 name: morning-report
 type: capability
 version: 0.1.0
-description: "Generate a daily morning briefing for Beaux. Use when starting the day, when asked for a"
+description: "Generate a comprehensive daily briefing to start the day."
 
 provides:
   - morning-report
@@ -14,10 +14,10 @@ requires:
   context: []
 
 budget:
-  index: 20
-  summary: 64
-  standard: 604
-  # deep: 1208  # Uncomment and create deep.md if needed
+  index: 16
+  summary: 72
+  standard: 797
+  # deep: 1594  # Uncomment and create deep.md if needed
 
 activation:
   triggers:

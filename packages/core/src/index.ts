@@ -15,3 +15,6 @@ export { applySessionPolicy, checkCapabilityPolicy, getEffectivePermission, type
 export { AgentAPI, type AgentAPIConfig } from './agent-api.js';
 export { countTokens, estimateTokensWordBased, countTokensSafe } from './tokenizer.js';
 export { TaskResolver, type TaskResolution, type TaskCapability, type TaskResolverConfig } from './task-resolver.js';
+export { FileStateStore, type FileStateStoreConfig } from './file-state-store.js';
+export { Observer, createEvent, type ObservabilityConfig, type SessionMetrics } from './observability.js';
+export { lintCapability, formatLintResults, type LintResult, type LintIssue } from './linter.js';

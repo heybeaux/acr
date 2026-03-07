@@ -1,7 +1,7 @@
 name: cron
 type: capability
 version: 0.1.0
-description: "Schedule reminders, recurring jobs, and background tasks using Clawdbot's cron system. Use when setting reminders, scheduling tasks, creating recurring jobs, or managing scheduled automation. Trigg..."
+description: "Schedule one-shot reminders or recurring background jobs via the Gateway's cron system."
 
 provides:
   - cron
@@ -14,10 +14,10 @@ requires:
   context: []
 
 budget:
-  index: 15
-  summary: 75
-  standard: 696
-  # deep: 1392  # Uncomment and create deep.md if needed
+  index: 20
+  summary: 74
+  standard: 1041
+  # deep: 2082  # Uncomment and create deep.md if needed
 
 activation:
   triggers:

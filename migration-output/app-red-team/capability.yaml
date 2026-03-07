@@ -1,10 +1,7 @@
 name: app-red-team
 type: capability
 version: 0.1.0
-description: ">
-  Comprehensive red team / critique of an application codebase. Runs 7 specialist
-  reviewers to find broken functionality, security flaws, architecture issues,
-  performance problems, and more. ..."
+description: "Comprehensive red team / critique of an application codebase. Runs 7 specialist reviewers to find broken functionality, security flaws, architecture issues, performance problems, and more. Triggers..."
 
 provides:
   - app-red-team
@@ -17,10 +14,10 @@ requires:
   context: []
 
 budget:
-  index: 19
-  summary: 110
-  standard: 1356
-  # deep: 2712  # Uncomment and create deep.md if needed
+  index: 22
+  summary: 128
+  standard: 1818
+  # deep: 3636  # Uncomment and create deep.md if needed
 
 activation:
   triggers:

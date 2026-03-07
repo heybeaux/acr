@@ -7,6 +7,7 @@ import { resolve as resolveCapabilities } from '@acr/core';
 import { calculateBudget } from '@acr/core';
 import { migrateSkill } from '@acr/core';
 import { detectLegacy, scanCapabilities } from '@acr/core';
+import { lintCapability, formatLintResults } from '@acr/core';
 import { parse as parseYaml } from 'yaml';
 import type { CapabilityManifest } from '@acr/schema';
 
@@ -25,6 +26,9 @@ switch (command) {
     break;
   case 'resolve':
     cmdResolve(args.slice(1));
+    break;
+  case 'lint':
+    cmdLint(args.slice(1));
     break;
   case 'help':
   case '--help':
@@ -45,6 +49,8 @@ function printHelp(): void {
   Commands:
     validate <path>          Validate a capability directory
     validate --all <dir>     Validate all capabilities in a directory
+    lint <path>              Lint LOD content quality for a capability
+    lint --all <dir>         Lint all capabilities in a directory
     migrate <SKILL.md>       Generate capability from existing skill file
     budget <path>            Calculate context budget for a capability/set/role
     resolve <path>           Show dependency resolution plan
@@ -134,6 +140,52 @@ function cmdValidate(args: string[]): void {
     }
     process.exit(result.valid ? 0 : 1);
   }
+}
+
+function cmdLint(args: string[]): void {
+  const allMode = args.includes('--all');
+  const pathArg = args.find(a => !a.startsWith('--'));
+
+  if (!pathArg) {
+    console.error('Usage: acr lint <path> [--all]');
+    process.exit(1);
+  }
+
+  const targetPath = resolvePath(pathArg);
+  const results: ReturnType<typeof lintCapability>[] = [];
+
+  if (allMode) {
+    const entries = readdirSync(targetPath, { withFileTypes: true })
+      .filter(e => e.isDirectory());
+
+    for (const entry of entries) {
+      const dir = join(targetPath, entry.name);
+      const manifestPath = join(dir, 'capability.yaml');
+      if (!existsSync(manifestPath)) continue;
+
+      try {
+        const raw = readFileSync(manifestPath, 'utf-8');
+        const manifest = parseYaml(raw) as CapabilityManifest;
+        results.push(lintCapability(dir, manifest));
+      } catch (err: any) {
+        console.error(`  ❌ ${entry.name}: Failed to parse — ${err.message}`);
+      }
+    }
+  } else {
+    const manifestPath = join(targetPath, 'capability.yaml');
+    if (!existsSync(manifestPath)) {
+      console.error(`No capability.yaml found in ${targetPath}`);
+      process.exit(1);
+    }
+    const raw = readFileSync(manifestPath, 'utf-8');
+    const manifest = parseYaml(raw) as CapabilityManifest;
+    results.push(lintCapability(targetPath, manifest));
+  }
+
+  console.log(formatLintResults(results));
+
+  const totalErrors = results.reduce((sum, r) => sum + r.errors.length, 0);
+  process.exit(totalErrors > 0 ? 1 : 0);
 }
 
 function cmdMigrate(args: string[]): void {
