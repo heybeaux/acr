@@ -1,12 +1,12 @@
 {
   "name": "acr",
   "private": true,
-  "description": "Agent Capability Runtime — framework-agnostic spec for composing agent capabilities",
+  "description": "Agent Capability Runtime \u2014 framework-agnostic spec for composing agent capabilities",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build -w packages/schema && npm run build -w packages/core && npm run build -w packages/cli",
     "test": "vitest run",
     "lint": "eslint packages/*/src/**/*.ts",
     "format": "prettier --write packages/*/src/**/*.ts",
