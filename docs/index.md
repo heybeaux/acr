@@ -24,14 +24,16 @@ That's 20% of a 128K context window. Gone. Every session.
 
 ## The Solution: Level of Detail
 
-ACR introduces LOD — the same technique that lets video games render entire worlds by varying detail with distance.
+Think of an agent like a woodworker. They own 30 tools, but can't lay them all on the workbench at once — there'd be no room to work. Instead, they **know what they own** (a glance around the shop), **pull out what they need** when a task arrives, and **put tools back** when they're done.
+
+ACR works the same way. Every capability (tool) is loaded at just enough detail for the current moment:
 
 | Level | Purpose | Size |
 |-------|---------|------|
-| **Index** | "I exist" | ~15 tokens |
-| **Summary** | "Here's what I do" | ~100 tokens |
-| **Standard** | "Here's how" | ~500 tokens |
-| **Deep** | "Here's everything" | ~2000 tokens |
+| **Index** | "I have this tool" — awareness | ~15 tokens |
+| **Summary** | "Here's what it does" — evaluation | ~100 tokens |
+| **Standard** | "Here's how to use it" — active use | ~500 tokens |
+| **Deep** | "Here's everything about it" — primary focus | ~2000 tokens |
 
 **Cold start:** All 30 capabilities at index = **473 tokens** (0.4% of window)
 **Active use:** 3 capabilities at full detail = **2,287 tokens** (1.8% of window)

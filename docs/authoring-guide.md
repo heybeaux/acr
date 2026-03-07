@@ -8,6 +8,18 @@ description: How to create, structure, and publish ACR capabilities.
 
 How to create, structure, and publish ACR capabilities.
 
+## Core Concepts
+
+Think of it like a woodworker's shop:
+
+| ACR Concept | Workshop Equivalent | What It Is |
+|-------------|-------------------|------------|
+| **Capability** | A tool (Phillips screwdriver) | One packaged unit — a skill, tool, or workflow with a manifest and LOD content |
+| **Capability Set** | A toolbox (the fastener kit) | A named bundle of capabilities at specific resolutions |
+| **Role** | A workstation (the framing station) | A complete setup — sets + individual capabilities + policies for a type of work |
+
+A capability is **not** a container of skills. It **is** the skill, packaged with metadata that tells the runtime what it does, what it costs, and when to load it. Capability sets and roles compose capabilities into larger units — like organizing individual tools into toolboxes and workstations.
+
 ## Quick Start
 
 ```bash
