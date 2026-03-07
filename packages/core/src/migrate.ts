@@ -29,37 +29,60 @@ function extractTriggers(name: string, description: string, body: string): Extra
   // Always include the name as a base pattern
   patterns.push(name.replace(/-/g, '[ -]'));
 
-  // Extract "Use when:" patterns
+  // Extract "Use when:" section
   const useWhenMatch = fullText.match(/use\s+when[:\s]*\(?\d*\)?\s*([\s\S]*?)(?=\.\s*NOT\s+for|NOT\s+for|\n\n|\n#|$)/i);
   if (useWhenMatch) {
     const useWhenText = useWhenMatch[1];
-    // Extract quoted commands/phrases
-    const quotedPhrases = useWhenText.match(/["'`/]([^"'`]+)["'`]/g);
-    if (quotedPhrases) {
-      for (const phrase of quotedPhrases) {
-        const clean = phrase.replace(/^["'`/]+|["'`]+$/g, '').trim();
-        if (clean.length > 1 && clean.length < 60) {
-          patterns.push(clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+    // Parse numbered items: (1) ..., (2) ..., etc.
+    const numberedItems = useWhenText.split(/\(\d+\)\s*/);
+    for (const item of numberedItems) {
+      const trimmed = item.trim();
+      if (!trimmed || trimmed.length < 3) continue;
+
+      // Extract slash commands
+      const slashCmds = trimmed.match(/\/[a-z][\w-]*/gi);
+      if (slashCmds) {
+        for (const cmd of slashCmds) {
+          patterns.push(cmd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
         }
       }
+
+      // Extract "asks to <action>" phrases → turn into trigger
+      const asksTo = trimmed.match(/asks?\s+(?:to\s+)?(\w[\w\s]{2,25}?)(?=[,;.\n]|$)/i);
+      if (asksTo) {
+        const action = asksTo[1].trim();
+        if (action.length > 3 && action.length < 30) {
+          patterns.push(action.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        }
+      }
+
+      // Extract key noun phrases from each item (checking, creating, listing, etc.)
+      const actionNouns = trimmed.match(/(?:checking|creating|listing|viewing|running|monitoring|filtering|reviewing|fetching|searching|querying|deploying|building|testing|generating)\s+([\w\s-]{3,30}?)(?=[,;.()\n]|$)/gi);
+      if (actionNouns) {
+        for (const phrase of actionNouns) {
+          // Extract the object of the action (e.g., "checking PR status" → "PR status")
+          const obj = phrase.replace(/^(?:checking|creating|listing|viewing|running|monitoring|filtering|reviewing|fetching|searching|querying|deploying|building|testing|generating)\s+/i, '').trim();
+          if (obj.length > 2 && obj.length < 30) {
+            patterns.push(obj.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+          }
+        }
+      }
+
+      // Extract labeled/tagged items
+      const labelMatch = trimmed.match(/(?:labeled|tagged|marked)\s+([\w-]+)/i);
+      if (labelMatch && labelMatch[1].length > 2) {
+        patterns.push(labelMatch[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      }
     }
-    // Extract "user says /command" patterns
-    const cmdMatches = useWhenText.match(/(?:user\s+says?\s+|asks?\s+to\s+)([/\w][\w -]+)/gi);
-    if (cmdMatches) {
-      for (const cmd of cmdMatches) {
-        const clean = cmd.replace(/^(?:user\s+says?\s+|asks?\s+to\s+)/i, '').trim();
+
+    // Also check for quoted terms in the full use-when text
+    const quotedTerms = useWhenText.match(/"([^"]{2,30})"|'([^']{2,30})'/g);
+    if (quotedTerms) {
+      for (const qt of quotedTerms) {
+        const clean = qt.replace(/^["']+|["']+$/g, '').trim();
         if (clean.length > 1) {
           patterns.push(clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        }
-      }
-    }
-    // Extract labeled action phrases like "batch-processing tickets labeled factory-ready"
-    const actionPhrases = useWhenText.match(/(?:labeled|tagged|marked)\s+([\w-]+)/gi);
-    if (actionPhrases) {
-      for (const phrase of actionPhrases) {
-        const label = phrase.replace(/^(?:labeled|tagged|marked)\s+/i, '').trim();
-        if (label.length > 2) {
-          patterns.push(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
         }
       }
     }
@@ -69,7 +92,6 @@ function extractTriggers(name: string, description: string, body: string): Extra
   const notForMatch = fullText.match(/NOT\s+for[:\s]*([\s\S]*?)(?=\n\n|\n#|$)/i);
   if (notForMatch) {
     const notForText = notForMatch[1];
-    // Extract key concept phrases
     const phrases = notForText.match(/(?:^|\(\d+\)\s*)([\w][\w\s-]+?)(?=[,;.()\n])/gm);
     if (phrases) {
       for (const phrase of phrases) {
@@ -81,8 +103,18 @@ function extractTriggers(name: string, description: string, body: string): Extra
     }
   }
 
-  // Deduplicate patterns
-  const uniquePatterns = [...new Set(patterns)];
+  // Deduplicate and filter patterns
+  const seen = new Set<string>();
+  const uniquePatterns: string[] = [];
+  for (const p of patterns) {
+    const normalized = p.toLowerCase().trim();
+    // Skip if too short, or is a common stop phrase, or duplicate
+    if (normalized.length < 2 || seen.has(normalized)) continue;
+    // Skip if it looks like raw description prose (contains "or asks", "user says", etc.)
+    if (/\b(user\s+says?|or\s+asks?|when\s+the)\b/i.test(p)) continue;
+    seen.add(normalized);
+    uniquePatterns.push(p);
+  }
 
   return { patterns: uniquePatterns, conflicts };
 }
@@ -91,67 +123,86 @@ function extractTriggers(name: string, description: string, body: string): Extra
 
 /**
  * Extract semantic provides tags from description and body content.
+ *
+ * Strategy: Description matches (especially "Use when:") are high-signal.
+ * Body matches require density (3+ mentions or in a heading) to avoid
+ * false positives from passing references.
  */
 function extractProvidesTags(name: string, description: string, body: string): string[] {
   const tags = new Set<string>([name]);
-  const fullText = `${description}\n${body}`.toLowerCase();
+  const descLower = description.toLowerCase();
+  const bodyLower = body.toLowerCase();
 
-  // Common capability domains to check for
+  // Domain patterns with the tag they provide
   const domainPatterns: Array<[RegExp, string]> = [
     [/pull[- ]?request/i, 'pull-request-management'],
     [/code[- ]?review/i, 'code-review'],
     [/ci[/ ]cd|continuous integration|ci monitoring|ci run/i, 'ci-monitoring'],
     [/issue[- ]?track|github issues|issue management/i, 'issue-tracking'],
     [/deploy|deployment/i, 'deployment'],
-    [/test|testing|unit test|e2e/i, 'testing'],
+    [/unit\s+test|e2e|test\s+(?:suite|framework|runner|coverage)|testing\s+(?:framework|strategy)/i, 'testing'],
     [/migrat/i, 'migration'],
-    [/generat/i, 'code-generation'],
+    [/code\s+generat|generat(?:e|or|ing)\s+(?:code|component|scaffold)/i, 'code-generation'],
     [/scaffold/i, 'scaffolding'],
-    [/lint|format/i, 'code-quality'],
-    [/auth|authenticat|authoriz/i, 'authentication'],
+    [/\blint(?:er|ing)?\b|code\s+(?:format|quality|style)/i, 'code-quality'],
+    [/authenticat|authoriz|oauth|jwt|login/i, 'authentication'],
     [/api[- ]?(endpoint|route|design)/i, 'api-design'],
-    [/database|schema|model/i, 'database-operations'],
-    [/webhook/i, 'webhook-handling'],
+    [/database\s+(?:schema|design|migration|operation|introspect|admin)/i, 'database-operations'],
+    [/webhook\s+(?:handler|endpoint|integration|management)/i, 'webhook-handling'],
     [/billing|payment|subscription|invoice/i, 'billing'],
     [/email|notification|alert/i, 'notifications'],
-    [/monitor|observ|metric|log/i, 'monitoring'],
-    [/security|vulnerab|audit/i, 'security-audit'],
-    [/search|query|filter/i, 'search'],
-    [/cache|caching/i, 'caching'],
+    [/monitor(?:ing)?|observ(?:ability|e)|metric|logging\s+(?:system|pipeline)/i, 'monitoring'],
+    [/security\s+(?:audit|review|scan)|vulnerab|penetration|red.team/i, 'security-audit'],
+    [/search\s+(?:engine|index|system)|full.text\s+search/i, 'search'],
+    [/cach(?:e|ing)\s+(?:layer|strategy|invalidat|system)/i, 'caching'],
     [/queue|job|worker|background/i, 'background-jobs'],
     [/file[- ]?upload|storage|s3|blob/i, 'file-storage'],
     [/websocket|realtime|real-time|sse/i, 'realtime'],
     [/crud|create.*read.*update|resource management/i, 'crud-operations'],
     [/rls|row.level|access.control|permission/i, 'access-control'],
     [/memory|recall|embedding|vector/i, 'memory-management'],
-    [/prompt|llm|model|ai agent/i, 'ai-operations'],
-    [/markdown|document|docs/i, 'documentation'],
-    [/git|version control|branch/i, 'version-control'],
+    [/\bllm\b|ai\s+agent|prompt\s+engineer|model\s+(?:select|rout)/i, 'ai-operations'],
+    [/documentation\s+(?:generat|site|system)|api\s+docs/i, 'documentation'],
+    [/git(?:hub)?|version control|branch/i, 'version-control'],
   ];
 
   for (const [pattern, tag] of domainPatterns) {
-    if (pattern.test(fullText)) {
+    // Description match = high signal, always include
+    if (pattern.test(descLower)) {
+      tags.add(tag);
+      continue;
+    }
+
+    // Body match = require density (3+ matches) OR in a heading
+    const bodyMatches = bodyLower.match(new RegExp(pattern.source, 'gi'));
+    const bodyCount = bodyMatches?.length ?? 0;
+
+    // Check if it appears in a heading (## Something)
+    const inHeading = body.split('\n')
+      .filter(l => /^#{1,3}\s/.test(l))
+      .some(l => pattern.test(l));
+
+    if (bodyCount >= 3 || inHeading) {
       tags.add(tag);
     }
   }
 
-  // Extract key noun phrases from description (simple heuristic)
-  const descWords = description.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, ' ')
-    .split(/\s+/)
-    .filter(w => w.length > 3);
-
-  // Compound terms from description
+  // Extract compound terms from description only (high signal)
+  // But exclude terms that appear in "NOT for:" context
+  const notForSection = description.toLowerCase().match(/not\s+for[:\s]*([\s\S]*?)$/i)?.[1] ?? '';
   const compoundTerms = description.toLowerCase().match(/[a-z]+-[a-z]+/g);
   if (compoundTerms) {
     for (const term of compoundTerms) {
-      if (term.length > 5 && !term.startsWith('non-')) {
+      if (term.length > 5
+        && !term.startsWith('non-')
+        && !['use-when', 'not-for'].includes(term)
+        && !notForSection.includes(term)) {
         tags.add(term);
       }
     }
   }
 
-  return [...tags].slice(0, 10); // Cap at 10 tags
+  return [...tags].slice(0, 10);
 }
 
 // ── Behavioral core extraction ──
