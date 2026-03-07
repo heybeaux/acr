@@ -14,3 +14,4 @@ export { LODLoader, type LoadedCapability } from './loader.js';
 export { applySessionPolicy, checkCapabilityPolicy, getEffectivePermission, type SessionPolicy, type PolicyResult } from './session-policy.js';
 export { AgentAPI, type AgentAPIConfig } from './agent-api.js';
 export { countTokens, estimateTokensWordBased, countTokensSafe } from './tokenizer.js';
+export { TaskResolver, type TaskResolution, type TaskCapability, type TaskResolverConfig } from './task-resolver.js';
