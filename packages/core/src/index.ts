@@ -10,3 +10,6 @@ export { ContextManager } from './context-manager.js';
 export { TriggerEngine } from './trigger-engine.js';
 export { CapabilityProxy } from './capability-proxy.js';
 export { InMemoryStateStore, serializeState, formatStateForContext } from './state-store.js';
+export { LODLoader, type LoadedCapability } from './loader.js';
+export { applySessionPolicy, checkCapabilityPolicy, getEffectivePermission, type SessionPolicy, type PolicyResult } from './session-policy.js';
+export { AgentAPI, type AgentAPIConfig } from './agent-api.js';
