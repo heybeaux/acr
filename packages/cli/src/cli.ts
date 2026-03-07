@@ -6,6 +6,7 @@ import { validateCapability } from '@acr/core';
 import { resolve as resolveCapabilities } from '@acr/core';
 import { calculateBudget } from '@acr/core';
 import { migrateSkill } from '@acr/core';
+import { detectLegacy, scanCapabilities } from '@acr/core';
 import { parse as parseYaml } from 'yaml';
 import type { CapabilityManifest } from '@acr/schema';
 

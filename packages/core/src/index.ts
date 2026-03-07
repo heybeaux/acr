@@ -2,3 +2,4 @@ export { validateCapability, type ValidationResult, type ValidationError, type V
 export { resolve, type ResolverOptions } from './resolver.js';
 export { calculateBudget, type BudgetReport, type CapabilityBudgetEntry, type BurstScenario } from './budget.js';
 export { migrateSkill, type MigrationResult } from './migrate.js';
+export { detectLegacy, scanCapabilities, type LegacyDetectionResult } from './legacy.js';
