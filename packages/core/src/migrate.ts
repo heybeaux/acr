@@ -57,12 +57,15 @@ function extractTriggers(name: string, description: string, body: string): Extra
         }
       }
 
-      // Extract key noun phrases from each item (checking, creating, listing, etc.)
-      const actionNouns = trimmed.match(/(?:checking|creating|listing|viewing|running|monitoring|filtering|reviewing|fetching|searching|querying|deploying|building|testing|generating)\s+([\w\s-]{3,30}?)(?=[,;.()\n]|$)/gi);
-      if (actionNouns) {
-        for (const phrase of actionNouns) {
-          // Extract the object of the action (e.g., "checking PR status" → "PR status")
-          const obj = phrase.replace(/^(?:checking|creating|listing|viewing|running|monitoring|filtering|reviewing|fetching|searching|querying|deploying|building|testing|generating)\s+/i, '').trim();
+      // Extract "verb + object" phrases (e.g., "checking PR status" → "PR status")
+      // Handle slash-separated verbs like "creating/commenting on issues"
+      const verbPattern = /(?:checking|creating|commenting|listing|viewing|running|monitoring|filtering|reviewing|fetching|searching|querying|deploying|building|testing|generating)/i;
+      // Split on slashes first to handle "creating/commenting on issues"
+      const subPhrases = trimmed.split(/[/]/).map(s => s.trim()).filter(s => s.length > 2);
+      for (const sub of subPhrases) {
+        const actionMatch = sub.match(new RegExp(`(?:${verbPattern.source})\\s+([\\w\\s-]{3,30}?)(?=[,;.()\\n]|$)`, 'i'));
+        if (actionMatch) {
+          const obj = actionMatch[1].trim();
           if (obj.length > 2 && obj.length < 30) {
             patterns.push(obj.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
           }
@@ -346,10 +349,10 @@ export function migrateSkill(skillPath: string): MigrationResult {
     .map(p => `    - type: pattern\n      match: "${escapeYaml(p)}"`)
     .join('\n');
 
-  // Format conflicts YAML
+  // Format conflicts YAML (inline [] for empty to avoid YAML parse errors)
   const conflictsYaml = triggers.conflicts.length > 0
-    ? triggers.conflicts.map(c => `    - ${c}`).join('\n')
-    : '  []';
+    ? '\n' + triggers.conflicts.map(c => `    - ${c}`).join('\n')
+    : ' []';
 
   // Format provides YAML
   const providesYaml = providesTags.map(t => `  - ${t}`).join('\n');
@@ -386,8 +389,7 @@ activation:
 ${triggersYaml}
   trigger_logic: OR
   co_activates: []
-  conflicts:
-${conflictsYaml}
+  conflicts:${conflictsYaml}
 
 # permissions:
 #   tools: {}
