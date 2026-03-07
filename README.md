@@ -25,7 +25,24 @@ An agent with 30 tools burns **26,000+ tokens** on tool instructions before a si
 
 ## The Solution
 
-ACR introduces **Level of Detail (LOD)** — the same concept that lets video games render entire worlds by showing nearby objects in high detail and distant ones as simple shapes.
+### The Workshop Analogy
+
+Imagine a woodworker's shop. They own 30 tools — saws, drills, chisels, screwdrivers, clamps, planes. They can't lay every tool on the workbench at once. There'd be no room to actually work.
+
+But they **know what they own**. They glance around the shop and know every tool on every shelf. When someone says "I need to hang shelves," they pull out the drill, the level, and the right screwdriver. Everything else stays on the shelf — not forgotten, just not needed right now.
+
+That's how ACR works. The agent is the woodworker. The context window is the workbench. The capabilities are the tools.
+
+| What the woodworker does | What ACR does |
+|--------------------------|---------------|
+| Glances around the shop — knows what they own | **Index level** — every capability loaded as a one-liner (~15 tokens each) |
+| Picks up a screwdriver — "Phillips, good for drywall screws, don't over-torque" | **Summary level** — enough to decide if this is the right tool |
+| Starts using it — recalls bit sizes, pre-drilling rules, torque specs | **Standard/Deep level** — full working knowledge |
+| Finishes and puts it back on the shelf | **Eviction** — demotes back to index, frees up the workbench |
+
+The workbench has a size limit. If someone asks for woodworking, plumbing, AND electrical at once, you can't have all three manuals open. ACR decides: "woodworking is the primary task — load that fully. Plumbing was mentioned — load a summary. Electrical wasn't mentioned — stays on the shelf." That prioritization is the **budget system**.
+
+### The Numbers
 
 ```
 Without ACR:  30 tools × 900 tokens each = 26,498 tokens (20.7% of window)
@@ -35,16 +52,16 @@ With ACR:     30 tools at index level    =    473 tokens  (0.4% of window)
 
 **98% token reduction at cold start. 91% reduction with active tools.** Not theoretical — measured against 30 real production capabilities.
 
-### How It Works
+### How It Works (Technical)
 
 Every capability has four resolution levels:
 
 | Level | Size | When Used |
 |-------|------|-----------|
-| **Index** | ~15 tokens | "I exist" — cold start awareness |
-| **Summary** | ~100 tokens | "Here's what I do" — evaluation |
-| **Standard** | ~500 tokens | "Here's how to use me" — active use |
-| **Deep** | ~2000 tokens | "Here's everything" — primary focus |
+| **Index** | ~15 tokens | "I have this tool" — cold start awareness |
+| **Summary** | ~100 tokens | "Here's what it does" — evaluation |
+| **Standard** | ~500 tokens | "Here's how to use it" — active use |
+| **Deep** | ~2000 tokens | "Here's everything about it" — primary focus |
 
 ACR dynamically promotes and demotes capabilities based on what the agent actually needs:
 
@@ -52,10 +69,10 @@ ACR dynamically promotes and demotes capabilities based on what the agent actual
 User: "Create a NestJS endpoint for user auth with Prisma"
 
 ACR resolves:
-  nestjs      → deep     (primary focus)
-  prisma-gen  → standard (actively needed)
-  linear      → summary  (for ticket tracking)
-  27 others   → index    (registered but dormant)
+  nestjs      → deep     (primary focus — on the workbench, in hand)
+  prisma-gen  → standard (actively needed — on the workbench)
+  linear      → summary  (might be relevant — within arm's reach)
+  27 others   → index    (on the shelf — known but not needed)
 ```
 
 The agent gets exactly the context it needs, nothing more.
