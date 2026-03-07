@@ -84,6 +84,25 @@ The working reference. Everything the agent needs to use the capability effectiv
 
 This is what gets loaded when the capability is "active."
 
+**Recommended sections** (not required, but produces better agent behavior):
+
+```markdown
+## Overview
+What this capability does, in 2-3 sentences.
+
+## Prerequisites
+Tools, API keys, environment setup needed.
+
+## Commands / Patterns
+The actual reference material. CLI commands, code patterns, API endpoints.
+
+## Examples
+Show, don't tell. Real-world usage snippets.
+
+## Common Errors
+What goes wrong and how to fix it.
+```
+
 Target: 200-3000 tokens (keep it focused — every token costs budget).
 
 ### deep.md (optional)

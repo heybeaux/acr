@@ -42,6 +42,8 @@ export class ContextManager {
   private readonly stateStore: InMemoryStateStore;
   private readonly eventHandlers: ACREventHandler[] = [];
   private readonly suppressedCapabilities: Set<string> = new Set();
+  private _mountLock: Promise<void> = Promise.resolve();
+  private _mountDepth: number = 0;
 
   constructor(config: ContextManagerConfig) {
     this.config = config;
@@ -99,6 +101,30 @@ export class ContextManager {
    * Handles budget fitting, LRU demotion, state restoration, and co-activation.
    */
   async mount(
+    name: string,
+    resolution: ResolutionLevel = 'standard',
+  ): Promise<MountResult | MountError> {
+    // Allow reentrant calls (co-activation, dependency resolution)
+    if (this._mountDepth > 0) {
+      return this._mountInternal(name, resolution);
+    }
+
+    // Serialize top-level mount operations to prevent concurrent budget corruption
+    const prev = this._mountLock;
+    let resolve: () => void;
+    this._mountLock = new Promise(r => { resolve = r; });
+    await prev;
+
+    try {
+      this._mountDepth++;
+      return await this._mountInternal(name, resolution);
+    } finally {
+      this._mountDepth--;
+      resolve!();
+    }
+  }
+
+  private async _mountInternal(
     name: string,
     resolution: ResolutionLevel = 'standard',
   ): Promise<MountResult | MountError> {

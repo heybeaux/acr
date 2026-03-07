@@ -20,3 +20,5 @@ export { Observer, createEvent, type ObservabilityConfig, type SessionMetrics } 
 export { lintCapability, formatLintResults, type LintResult, type LintIssue } from './linter.js';
 export { buildIndex, saveIndex, loadIndex, searchRegistry, formatSearchResults, type RegistryIndex, type SearchResult } from './registry.js';
 export { resolveSpawnConfig, resolveFromTask, type SpawnCapabilityRequest, type SpawnConfig } from './spawn-resolver.js';
+export { resolveCapabilitySet, resolveRole, type CapabilitySetDefinition, type RoleDefinition, type CapabilitySetMember } from './capability-sets.js';
+export { ACRTestKit, type MockCapabilityOptions, type MountAssertion, type ResolutionAssertion } from './testkit.js';

@@ -247,6 +247,72 @@ export function lintCapability(
     });
   }
 
+  // ── Content structure recommendations ──
+  if (files.standard.content) {
+    const content = files.standard.content;
+    const recommendedSections = [
+      { pattern: /##\s*(overview|about|what)/i, name: 'Overview' },
+      { pattern: /##\s*(command|pattern|usage|reference|api)/i, name: 'Commands/Patterns' },
+      { pattern: /##\s*(example|snippet|demo)/i, name: 'Examples' },
+    ];
+
+    const missingSections = recommendedSections
+      .filter(s => !s.pattern.test(content))
+      .map(s => s.name);
+
+    if (missingSections.length > 0 && files.standard.tokens! > 200) {
+      result.info.push({
+        level: 'info',
+        code: 'RECOMMENDED_SECTIONS',
+        message: `standard.md could benefit from: ${missingSections.join(', ')} sections`,
+        file: 'standard.md',
+      });
+    }
+  }
+
+  // ── Semantic consistency: summary should be self-contained ──
+  if (files.summary.content && files.index.content) {
+    // Check if the summary mentions the capability name
+    const nameTokens = manifest.name.toLowerCase().split(/[-_.]/);
+    const summaryLower = files.summary.content.toLowerCase();
+    const hasName = nameTokens.some(t => t.length > 2 && summaryLower.includes(t));
+    if (!hasName) {
+      result.warnings.push({
+        level: 'warning',
+        code: 'SUMMARY_NO_NAME',
+        message: 'summary.md does not mention the capability name — may confuse agents when loaded standalone',
+        file: 'summary.md',
+      });
+    }
+  }
+
+  // ── Semantic consistency: standard should include summary concepts ──
+  if (files.standard.content && files.summary.content) {
+    // Extract key terms from summary (words > 5 chars, non-stopwords)
+    const stopwords = new Set(['should', 'would', 'could', 'about', 'these', 'those',
+      'their', 'which', 'there', 'where', 'when', 'other', 'after', 'before']);
+    const summaryTerms = files.summary.content
+      .toLowerCase()
+      .match(/\b[a-z]{5,}\b/g)
+      ?.filter(w => !stopwords.has(w)) ?? [];
+    const uniqueTerms = [...new Set(summaryTerms)];
+    const standardLower = files.standard.content.toLowerCase();
+
+    const missingTerms = uniqueTerms.filter(t => !standardLower.includes(t));
+    const coverageRatio = uniqueTerms.length > 0
+      ? (uniqueTerms.length - missingTerms.length) / uniqueTerms.length
+      : 1;
+
+    if (coverageRatio < 0.5 && uniqueTerms.length > 5) {
+      result.warnings.push({
+        level: 'warning',
+        code: 'LOD_CONTENT_DIVERGENCE',
+        message: `standard.md only covers ${(coverageRatio * 100).toFixed(0)}% of summary.md key terms — LOD levels may have divergent content`,
+        file: 'standard.md',
+      });
+    }
+  }
+
   return result;
 }
 
