@@ -1,12 +1,7 @@
 title: ACR — Agent Capability Runtime
 description: The missing context layer for AI agents. Dynamic capability loading with Level of Detail.
-url: https://heybeaux.github.io/acr
+url: https://heybeaux.github.io
 baseurl: /acr
-
-theme: jekyll-theme-minimal
-
-plugins:
-  - jekyll-seo-tag
 
 markdown: kramdown
 
