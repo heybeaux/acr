@@ -62,15 +62,21 @@ export class ContextManager {
   registerCapability(manifest: CapabilityManifest): void {
     this.manifests.set(manifest.name, manifest);
 
-    // Place in COLD zone at index resolution
+    const isPinned = this.config.pinnedCapabilities?.includes(manifest.name) ?? false;
+    const priority = manifest.priority ?? this.config.defaultPriority ?? 'medium';
+
+    // Place in COLD zone at index resolution (or RESIDENT if pinned)
     this.capabilities.set(manifest.name, {
       manifest,
       resolution: 'index',
-      zone: 'COLD',
+      zone: isPinned ? 'RESIDENT' : 'COLD',
       budgetUsed: manifest.budget.index,
       mountedAt: Date.now(),
       lastAccessedAt: Date.now(),
+      accessCount: 0,
       suppressedTriggers: false,
+      pinned: isPinned,
+      priority,
     });
 
     // Register triggers
@@ -164,6 +170,7 @@ export class ContextManager {
 
     // Mount
     const zone = this.zoneForResolution(resolution);
+    const existingEntry = this.capabilities.get(name);
     const mounted: MountedCapability = {
       manifest,
       resolution,
@@ -171,7 +178,10 @@ export class ContextManager {
       budgetUsed: targetBudget,
       mountedAt: Date.now(),
       lastAccessedAt: Date.now(),
+      accessCount: (existingEntry?.accessCount ?? 0) + 1,
       suppressedTriggers: false,
+      pinned: existingEntry?.pinned ?? false,
+      priority: manifest.priority ?? this.config.defaultPriority ?? 'medium',
       state: state ?? undefined,
     };
 
@@ -440,6 +450,8 @@ export class ContextManager {
 
   /**
    * Generate a context prompt with all mounted capabilities at their resolution levels.
+   * NOTE: For file-based context with LOD content, use LODLoader.generateContext() via AgentAPI.
+   * This method uses behavioral.core only (no disk I/O).
    */
   generateContext(): string {
     const sections: string[] = [];
@@ -540,25 +552,69 @@ export class ContextManager {
   }
 
   /**
-   * Plan LRU demotions to free up the required tokens.
+   * Plan priority-weighted demotions to free up the required tokens.
+   *
+   * Eviction score (lower = evict first):
+   *   score = priorityWeight * 40
+   *        + recencyScore * 25
+   *        + frequencyScore * 15
+   *        + remountCostScore * 10
+   *        + dependencyScore * 10
+   *
+   * Pinned capabilities are never evicted.
+   * Dependency floors are respected (if A requires B, B can't go below A's required resolution).
    */
   private planDemotions(tokensNeeded: number, exclude: string): Demotion[] {
     const demotions: Demotion[] = [];
     let freed = 0;
 
-    // Sort by last accessed (LRU first), then by budget (smallest savings first)
-    const candidates = Array.from(this.capabilities.values())
-      .filter(c => c.manifest.name !== exclude && c.resolution !== 'index')
-      .sort((a, b) => a.lastAccessedAt - b.lastAccessedAt);
+    const now = Date.now();
+    const PRIORITY_WEIGHTS: Record<string, number> = {
+      critical: 4,
+      high: 3,
+      medium: 2,
+      low: 1,
+    };
 
-    for (const candidate of candidates) {
+    // Calculate eviction scores for all demotable candidates
+    const candidates = Array.from(this.capabilities.values())
+      .filter(c =>
+        c.manifest.name !== exclude &&
+        c.resolution !== 'index' &&
+        !c.pinned  // Never evict pinned/RESIDENT capabilities
+      )
+      .map(c => {
+        const priorityWeight = PRIORITY_WEIGHTS[c.priority] ?? 2;
+        const age = now - c.lastAccessedAt;
+        const maxAge = 600000; // 10 minutes
+        const recencyScore = Math.min(age / maxAge, 1); // 0 = just accessed, 1 = old
+        const frequencyScore = Math.min(c.accessCount / 10, 1); // 0 = rarely used, 1 = heavily used
+        const remountCost = c.manifest.budget.standard / 5000; // normalize: bigger = more costly to remount
+        const hasDependents = this.hasDependents(c.manifest.name);
+
+        // Lower score = evict first
+        const evictionScore =
+          priorityWeight * 40 +
+          (1 - recencyScore) * 25 + // invert: recently accessed = higher score = keep
+          frequencyScore * 15 +
+          remountCost * 10 +
+          (hasDependents ? 10 : 0);
+
+        return { capability: c, score: evictionScore };
+      })
+      .sort((a, b) => a.score - b.score); // lowest score first = evict first
+
+    for (const { capability: candidate } of candidates) {
       if (freed >= tokensNeeded) break;
 
-      // Demote one level at a time
+      // Check dependency floors
+      const minResolution = this.getDependencyFloor(candidate.manifest.name);
+
       const levels: ResolutionLevel[] = ['deep', 'standard', 'summary', 'index'];
       const currentIdx = levels.indexOf(candidate.resolution);
+      const floorIdx = minResolution ? levels.indexOf(minResolution) : levels.length - 1;
 
-      for (let i = currentIdx + 1; i < levels.length && freed < tokensNeeded; i++) {
+      for (let i = currentIdx + 1; i <= floorIdx && freed < tokensNeeded; i++) {
         const targetLevel = levels[i];
         const targetBudget = this.getBudgetForResolution(candidate.manifest, targetLevel);
         const savings = candidate.budgetUsed - targetBudget;
@@ -571,12 +627,49 @@ export class ContextManager {
             tokensSaved: savings,
           });
           freed += savings;
-          break; // one demotion per capability per round
+          break;
         }
       }
     }
 
     return demotions;
+  }
+
+  /**
+   * Check if any mounted capability depends on the given capability.
+   */
+  private hasDependents(capabilityName: string): boolean {
+    for (const [, entry] of this.capabilities) {
+      if (entry.resolution === 'index') continue;
+      const deps = entry.manifest.requires?.capabilities;
+      if (deps?.some(d => d.name === capabilityName)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get the minimum resolution a capability can be demoted to
+   * based on what other mounted capabilities require from it.
+   */
+  private getDependencyFloor(capabilityName: string): ResolutionLevel | null {
+    let floor: ResolutionLevel | null = null;
+    const levelOrder: Record<string, number> = { index: 0, summary: 1, standard: 2, deep: 3 };
+
+    for (const [, entry] of this.capabilities) {
+      if (entry.resolution === 'index') continue;
+      const deps = entry.manifest.requires?.capabilities;
+      if (!deps) continue;
+
+      for (const dep of deps) {
+        if (dep.name === capabilityName && dep.resolution) {
+          if (!floor || levelOrder[dep.resolution] > levelOrder[floor]) {
+            floor = dep.resolution;
+          }
+        }
+      }
+    }
+
+    return floor;
   }
 
   /**

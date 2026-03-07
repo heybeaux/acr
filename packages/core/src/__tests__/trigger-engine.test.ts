@@ -115,6 +115,63 @@ describe('TriggerEngine', () => {
     });
   });
 
+  describe('semantic triggers', () => {
+    it('matches semantically similar messages', () => {
+      // Register a capability about issue tracking and project management
+      const manifest: any = {
+        name: 'issue-tracker',
+        version: '1.0.0',
+        type: 'capability',
+        description: 'Track issues, bugs, tickets, and project tasks in Linear',
+        provides: ['issue-tracking', 'project-management', 'tickets', 'bugs', 'sprint'],
+        budget: { index: 10, summary: 100, standard: 500 },
+        behavioral: { core: '' },
+        // No explicit pattern triggers — relies on semantic matching
+      };
+
+      engine.register(manifest);
+
+      // Should match on semantically related messages
+      const matches = engine.evaluatePatterns('check my sprint tickets');
+      const semanticMatches = matches.filter(m => m.triggerType === 'semantic');
+      expect(semanticMatches.length).toBeGreaterThan(0);
+      expect(semanticMatches[0].capabilityName).toBe('issue-tracker');
+    });
+
+    it('does not match unrelated messages', () => {
+      const manifest: any = {
+        name: 'weather-check',
+        version: '1.0.0',
+        type: 'capability',
+        description: 'Check weather forecasts and temperature for any location',
+        provides: ['weather', 'forecast', 'temperature'],
+        budget: { index: 10, summary: 100, standard: 500 },
+        behavioral: { core: '' },
+      };
+
+      engine.register(manifest);
+
+      const matches = engine.evaluatePatterns('review the database schema migration');
+      const weatherMatches = matches.filter(m => m.capabilityName === 'weather-check');
+      expect(weatherMatches).toHaveLength(0);
+    });
+
+    it('regex takes priority over semantic', () => {
+      const manifest = makeManifest('pr-review', [
+        { type: 'pattern', match: 'review PR' },
+      ]);
+      (manifest as any).description = 'Review pull requests for code quality';
+      (manifest as any).provides = ['code-review', 'pr-review'];
+
+      engine.register(manifest);
+
+      const matches = engine.evaluatePatterns('review PR #42');
+      // Should match via regex, not semantic
+      expect(matches).toHaveLength(1);
+      expect(matches[0].triggerType).toBe('pattern');
+    });
+  });
+
   describe('lifecycle', () => {
     it('unregisters capabilities', () => {
       engine.register(makeManifest('temp', [{ type: 'pattern', match: 'temp' }]));

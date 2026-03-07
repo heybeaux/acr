@@ -5,7 +5,7 @@
 
 export type ResolutionLevel = 'index' | 'summary' | 'standard' | 'deep';
 export type CapabilityType = 'capability' | 'capability-set';
-export type TriggerType = 'pattern' | 'runtime_event';
+export type TriggerType = 'pattern' | 'runtime_event' | 'semantic';
 export type TriggerLogic = 'OR' | 'AND';
 export type PermissionValue = 'allow' | 'deny';
 export type DataPermission = 'read-only' | 'read-write' | 'never';
@@ -34,6 +34,7 @@ export interface Trigger {
   type: TriggerType;
   match?: string;      // required when type === 'pattern'
   condition?: string;  // required when type === 'runtime_event'
+  threshold?: number;  // similarity threshold for type === 'semantic' (0-1, default 0.6)
 }
 
 export interface Overlay {
@@ -107,6 +108,7 @@ export interface CapabilityManifest {
   behavioral?: Behavioral;       // required for type: 'capability'
   state_schema?: StateSchema;
   verification?: Verification;
+  priority?: PriorityLevel;      // eviction priority (default: 'medium')
 }
 
 /**

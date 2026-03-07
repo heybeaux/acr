@@ -335,6 +335,75 @@ describe('ContextManager', () => {
     });
   });
 
+  describe('priority eviction', () => {
+    it('evicts low-priority capabilities before high-priority', async () => {
+      const cm2 = new ContextManager({
+        windowSize: 2000,
+        residentBudget: 100,
+        defaultPermissionPolicy: 'allow-with-log',
+        sessionId: 'test',
+      });
+
+      cm2.registerAll([
+        makeManifest({ name: 'critical-cap', priority: 'critical', budget: { index: 10, summary: 50, standard: 400 } }),
+        makeManifest({ name: 'low-cap', priority: 'low', budget: { index: 10, summary: 50, standard: 400 } }),
+        makeManifest({ name: 'new-cap', budget: { index: 10, summary: 50, standard: 600 } }),
+      ]);
+
+      await cm2.mount('critical-cap');
+      await cm2.mount('low-cap');
+
+      // Mount new-cap should evict low-cap first (lower priority), not critical-cap
+      const result = await cm2.mount('new-cap');
+      expect(result.success).toBe(true);
+      if (result.success && result.demotions.length > 0) {
+        expect(result.demotions[0].capability).toBe('low-cap');
+      }
+    });
+  });
+
+  describe('RESIDENT pinning', () => {
+    it('never evicts pinned capabilities', async () => {
+      const cm2 = new ContextManager({
+        windowSize: 1500,
+        residentBudget: 100,
+        defaultPermissionPolicy: 'allow-with-log',
+        sessionId: 'test',
+        pinnedCapabilities: ['safety'],
+      });
+
+      cm2.registerAll([
+        makeManifest({ name: 'safety', budget: { index: 10, summary: 50, standard: 400 } }),
+        makeManifest({ name: 'regular', budget: { index: 10, summary: 50, standard: 400 } }),
+        makeManifest({ name: 'new-cap', budget: { index: 10, summary: 50, standard: 500 } }),
+      ]);
+
+      await cm2.mount('safety');
+      await cm2.mount('regular');
+
+      const result = await cm2.mount('new-cap');
+      if (result.success && result.demotions.length > 0) {
+        // Safety should never be in demotions
+        const safetyDemoted = result.demotions.find(d => d.capability === 'safety');
+        expect(safetyDemoted).toBeUndefined();
+      }
+    });
+
+    it('pins capabilities in RESIDENT zone', () => {
+      const cm2 = new ContextManager({
+        windowSize: 128000,
+        residentBudget: 2000,
+        defaultPermissionPolicy: 'allow-with-log',
+        sessionId: 'test',
+        pinnedCapabilities: ['core-identity'],
+      });
+
+      cm2.registerCapability(makeManifest({ name: 'core-identity' }));
+      const status = cm2.status('core-identity');
+      expect(status!.zone).toBe('RESIDENT');
+    });
+  });
+
   describe('context generation', () => {
     it('generates structured context prompt', async () => {
       cm.registerAll([

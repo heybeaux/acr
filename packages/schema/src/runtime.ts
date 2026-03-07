@@ -10,6 +10,7 @@ import type {
   ResolvedCapability,
   ACRErrorCode,
   PermissionValue,
+  PriorityLevel,
   StateField,
 } from './types.js';
 
@@ -24,7 +25,10 @@ export interface MountedCapability {
   budgetUsed: number;
   mountedAt: number;             // timestamp
   lastAccessedAt: number;        // for LRU
+  accessCount: number;           // for LFU
   suppressedTriggers: boolean;   // agent explicitly unmounted → triggers suppressed
+  pinned: boolean;               // RESIDENT — never evicted
+  priority: PriorityLevel;       // eviction priority
   state?: SerializedState;       // restored state from prior mount
 }
 
@@ -111,7 +115,7 @@ export interface StateStore {
 
 export interface CompiledTrigger {
   capabilityName: string;
-  type: 'pattern' | 'runtime_event';
+  type: 'pattern' | 'runtime_event' | 'semantic';
   regex?: RegExp;               // precompiled for pattern triggers
   condition?: string;           // raw expression for runtime_event triggers
   triggerLogic: 'OR' | 'AND';
@@ -120,7 +124,7 @@ export interface CompiledTrigger {
 
 export interface TriggerMatch {
   capabilityName: string;
-  triggerType: 'pattern' | 'runtime_event';
+  triggerType: 'pattern' | 'runtime_event' | 'semantic';
   matchedText?: string;
   condition?: string;
 }
@@ -174,6 +178,10 @@ export interface ContextManagerConfig {
   defaultPermissionPolicy: DefaultPermissionPolicy;
   sessionId: string;
   stateStore?: StateStore;
+  /** Capabilities to pin in RESIDENT zone (never evicted) */
+  pinnedCapabilities?: string[];
+  /** Default priority for capabilities without explicit priority */
+  defaultPriority?: PriorityLevel;
 }
 
 export interface ContextSnapshot {
