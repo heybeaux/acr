@@ -13,7 +13,7 @@
     "./capability.schema.json": "./src/capability.schema.json"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc && cp src/capability.schema.json dist/",
     "test": "vitest run"
   },
   "files": [
