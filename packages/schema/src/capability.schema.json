@@ -199,6 +199,79 @@
         }
       },
       "additionalProperties": false
+    },
+    "publisher": {
+      "type": "object",
+      "description": "Authorship, integrity, and marketplace metadata (optional, for registry/marketplace use)",
+      "properties": {
+        "author": {
+          "type": "string",
+          "description": "Author identifier — DID, wallet address, email, or URI (e.g., did:key:z6Mk..., 0x1234..., alice@example.com)"
+        },
+        "organization": {
+          "type": "string",
+          "description": "Organization or team that published this capability"
+        },
+        "license": {
+          "type": "string",
+          "description": "SPDX license identifier or custom license URI (e.g., MIT, Apache-2.0, LicenseRef-PerUse)",
+          "pattern": "^[A-Za-z0-9._\\-+()]+$"
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri",
+          "description": "Source repository URL"
+        },
+        "content_hash": {
+          "type": "string",
+          "description": "Integrity hash of the capability content (SHA-256 or IPFS CID). Covers all LOD files + manifest.",
+          "pattern": "^(sha256:[a-f0-9]{64}|Qm[1-9A-HJ-NP-Za-km-z]{44}|bafy[a-z2-7]{55})$"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Cryptographic signature of content_hash by author's key. Proves authorship and integrity."
+        },
+        "registry_uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "Canonical registry location (e.g., https://registry.acr.dev/capabilities/nestjs)"
+        },
+        "funding": {
+          "type": "object",
+          "description": "Compensation and funding metadata for marketplace use",
+          "properties": {
+            "model": {
+              "type": "string",
+              "enum": ["free", "per-use", "subscription", "donation", "token-gated"],
+              "description": "Compensation model"
+            },
+            "wallet": {
+              "type": "string",
+              "description": "Payment address (Ethereum address, Lightning address, etc.)"
+            },
+            "token_id": {
+              "type": "string",
+              "description": "On-chain token identifier (ERC-1155 token ID or equivalent)"
+            },
+            "contract": {
+              "type": "string",
+              "description": "Smart contract address for on-chain registration"
+            },
+            "chain": {
+              "type": "string",
+              "description": "Blockchain network (e.g., ethereum, polygon, base, arbitrum)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "default": "medium",
+      "description": "Priority level for eviction decisions"
     }
   },
   "if": {

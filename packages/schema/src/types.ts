@@ -85,6 +85,29 @@ export interface Verification {
   completion_signal?: string;
 }
 
+// ─── Marketplace / Registry ──────────────────────────────────────────
+
+export type CompensationModel = 'free' | 'per-use' | 'subscription' | 'donation' | 'token-gated';
+
+export interface FundingConfig {
+  model: CompensationModel;
+  wallet?: string;          // Payment address (ETH, Lightning, etc.)
+  token_id?: string;        // On-chain token identifier (ERC-1155 token ID)
+  contract?: string;        // Smart contract address
+  chain?: string;           // Blockchain network (ethereum, polygon, base, etc.)
+}
+
+export interface Publisher {
+  author?: string;          // DID, wallet address, email, or URI
+  organization?: string;    // Publishing org or team
+  license?: string;         // SPDX identifier (MIT, Apache-2.0, LicenseRef-PerUse)
+  repository?: string;      // Source repo URL
+  content_hash?: string;    // SHA-256 or IPFS CID of capability content
+  signature?: string;       // Cryptographic signature of content_hash
+  registry_uri?: string;    // Canonical registry location
+  funding?: FundingConfig;  // Compensation metadata
+}
+
 /**
  * The complete ACR Capability Manifest.
  * This is the root type for capability.yaml files.
@@ -109,6 +132,7 @@ export interface CapabilityManifest {
   state_schema?: StateSchema;
   verification?: Verification;
   priority?: PriorityLevel;      // eviction priority (default: 'medium')
+  publisher?: Publisher;          // authorship, integrity, and marketplace metadata
 }
 
 /**
