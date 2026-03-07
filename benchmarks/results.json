@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-03-07T14:34:49.849Z",
+  "tasks": 8,
+  "capabilities": 29,
+  "avgSavings": 84.5,
+  "avgRecall": 97.5,
+  "avgPrecision": 100,
+  "perfectRecall": 7,
+  "flatBaseline": 37249,
+  "results": [
+    {
+      "task": "NestJS Auth Service",
+      "flatTokens": 37249,
+      "acrTokens": 6985,
+      "savings": 81.24781873338883,
+      "requiredFound": 2,
+      "requiredTotal": 2,
+      "irrelevantExcluded": 7,
+      "irrelevantTotal": 7,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "task": "Supabase RLS Fix",
+      "flatTokens": 37249,
+      "acrTokens": 10207,
+      "savings": 72.59792209186824,
+      "requiredFound": 2,
+      "requiredTotal": 2,
+      "irrelevantExcluded": 5,
+      "irrelevantTotal": 5,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "task": "Stripe Webhook Handler",
+      "flatTokens": 37249,
+      "acrTokens": 214,
+      "savings": 99.42548793256195,
+      "requiredFound": 1,
+      "requiredTotal": 1,
+      "irrelevantExcluded": 5,
+      "irrelevantTotal": 5,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "task": "Code Review PR",
+      "flatTokens": 37249,
+      "acrTokens": 7583,
+      "savings": 79.64240650755725,
+      "requiredFound": 1,
+      "requiredTotal": 1,
+      "irrelevantExcluded": 5,
+      "irrelevantTotal": 5,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "task": "Linear Ticket Triage",
+      "flatTokens": 37249,
+      "acrTokens": 2782,
+      "savings": 92.53134312330532,
+      "requiredFound": 1,
+      "requiredTotal": 1,
+      "irrelevantExcluded": 5,
+      "irrelevantTotal": 5,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "task": "Full-Stack Feature",
+      "flatTokens": 37249,
+      "acrTokens": 7823,
+      "savings": 78.9980939085613,
+      "requiredFound": 4,
+      "requiredTotal": 5,
+      "irrelevantExcluded": 4,
+      "irrelevantTotal": 4,
+      "precision": 1,
+      "recall": 0.8
+    },
+    {
+      "task": "Engram Memory Query",
+      "flatTokens": 37249,
+      "acrTokens": 4221,
+      "savings": 88.6681521651588,
+      "requiredFound": 1,
+      "requiredTotal": 1,
+      "irrelevantExcluded": 5,
+      "irrelevantTotal": 5,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "task": "Database Schema Analysis",
+      "flatTokens": 37249,
+      "acrTokens": 6299,
+      "savings": 83.08947891218557,
+      "requiredFound": 1,
+      "requiredTotal": 1,
+      "irrelevantExcluded": 5,
+      "irrelevantTotal": 5,
+      "precision": 1,
+      "recall": 1
+    }
+  ]
+}

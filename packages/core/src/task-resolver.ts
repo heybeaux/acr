@@ -251,13 +251,20 @@ export class TaskResolver {
         }
       }
 
-      // Signal 3: Tech stack keyword matching (only against name + provides, not description)
-      // Description matching is too loose — "test" in description matches everything
+      // Signal 3: Tech stack keyword matching
+      // Check name, provides, AND description (but only for specific tech terms, not generic ones)
+      const genericTerms = new Set(['test', 'testing', 'api', 'deploy', 'schema', 'migration',
+        'auth', 'authentication', 'security', 'review', 'ci', 'cd', 'pipeline', 'endpoint',
+        'audit', 'code review', 'webhook', 'cron', 'memory', 'vector']);
+
       for (const keyword of techKeywords) {
         const nameLower = manifest.name.toLowerCase();
-        const providesLower = manifest.provides.map(p => p.toLowerCase());
+        const providesLower = manifest.provides.map((p: string) => p.toLowerCase());
+        const descLower = manifest.description.toLowerCase();
         const nameMatch = nameLower.includes(keyword);
-        const providesMatch = providesLower.some(p => p.includes(keyword));
+        const providesMatch = providesLower.some((p: string) => p.includes(keyword));
+        const isSpecific = !genericTerms.has(keyword);
+        const descMatch = isSpecific && descLower.includes(keyword);
 
         if (nameMatch) {
           score += 25;
@@ -266,6 +273,10 @@ export class TaskResolver {
         } else if (providesMatch) {
           score += 15;
           reasons.push(`tech stack in provides: "${keyword}"`);
+        } else if (descMatch) {
+          score += 15;
+          reasons.push(`tech stack in description: "${keyword}"`);
+          if (score >= 40) isPrimary = true;
         }
       }
 
@@ -354,6 +365,8 @@ function extractTechKeywords(text: string): string[] {
     'migration', 'schema', 'endpoint', 'api', 'webhook', 'cron',
     'ci', 'cd', 'pipeline', 'deploy', 'test', 'testing',
     'security', 'audit', 'review', 'code review',
+    // Database concepts
+    'database', 'introspect', 'introspection', 'erd', 'foreign key',
     // AI/Memory
     'engram', 'memory', 'embedding', 'vector', 'recall',
   ];

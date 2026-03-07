@@ -9,7 +9,7 @@ ACR manages what goes into an agent's context window — which capabilities are 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![Tests](https://img.shields.io/badge/tests-88%20passing-brightgreen.svg)](#)
-[![Spec](https://img.shields.io/badge/spec-v1.0--draft-orange.svg)](./specs/agent-capability-runtime.md)
+[![Spec](https://img.shields.io/badge/spec-v1.0--rc1-orange.svg)](./specs/agent-capability-runtime.md)
 
 </div>
 
@@ -267,7 +267,7 @@ acr search <query> <dir>     # Search capabilities
 
 ## Spec
 
-The formal specification is at [`specs/agent-capability-runtime.md`](./specs/agent-capability-runtime.md) (v1.0-draft, 784 lines).
+The formal specification is at [`specs/agent-capability-runtime.md`](./specs/agent-capability-runtime.md) (v1.0-rc1, 784 lines).
 
 It covers:
 - Layer model (Primitives → Capabilities → Capability Sets → Roles)

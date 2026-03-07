@@ -175,7 +175,7 @@ MCP tells the agent what tools exist. ACR tells the agent which tool instruction
 
 ## Project
 
-- **Spec:** [v1.0-draft](https://github.com/heybeaux/acr/blob/main/specs/agent-capability-runtime.md) (784 lines)
+- **Spec:** [v1.0-rc1](https://github.com/heybeaux/acr/blob/main/specs/agent-capability-runtime.md) (784 lines)
 - **Runtime:** TypeScript monorepo — `@acr/schema`, `@acr/core`, `@acr/cli`
 - **Tests:** 88 passing across 6 suites
 - **License:** MIT
