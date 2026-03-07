@@ -1,3 +1,9 @@
+---
+layout: default
+title: ACR + MCP — Complementary Layers
+description: How ACR and MCP work together. MCP is the wire protocol. ACR is the context manager.
+---
+
 # ACR + MCP: Complementary Layers
 
 ## The Relationship

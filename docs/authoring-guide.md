@@ -1,3 +1,9 @@
+---
+layout: default
+title: Capability Authoring Guide
+description: How to create, structure, and publish ACR capabilities.
+---
+
 # ACR Capability Authoring Guide
 
 How to create, structure, and publish ACR capabilities.
