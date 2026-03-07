@@ -40,8 +40,8 @@ function extractTriggers(name: string, description: string, body: string): Extra
       const trimmed = item.trim();
       if (!trimmed || trimmed.length < 3) continue;
 
-      // Extract slash commands
-      const slashCmds = trimmed.match(/\/[a-z][\w-]*/gi);
+      // Extract slash commands (must be preceded by whitespace or start of string, not word chars)
+      const slashCmds = trimmed.match(/(?:^|(?<=\s))\/[a-z][\w-]*/gi);
       if (slashCmds) {
         for (const cmd of slashCmds) {
           patterns.push(cmd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
