@@ -18,3 +18,5 @@ export { TaskResolver, type TaskResolution, type TaskCapability, type TaskResolv
 export { FileStateStore, type FileStateStoreConfig } from './file-state-store.js';
 export { Observer, createEvent, type ObservabilityConfig, type SessionMetrics } from './observability.js';
 export { lintCapability, formatLintResults, type LintResult, type LintIssue } from './linter.js';
+export { buildIndex, saveIndex, loadIndex, searchRegistry, formatSearchResults, type RegistryIndex, type SearchResult } from './registry.js';
+export { resolveSpawnConfig, resolveFromTask, type SpawnCapabilityRequest, type SpawnConfig } from './spawn-resolver.js';

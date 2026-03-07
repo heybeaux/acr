@@ -8,6 +8,7 @@ import { calculateBudget } from '@acr/core';
 import { migrateSkill } from '@acr/core';
 import { detectLegacy, scanCapabilities } from '@acr/core';
 import { lintCapability, formatLintResults } from '@acr/core';
+import { buildIndex, searchRegistry, formatSearchResults } from '@acr/core';
 import { parse as parseYaml } from 'yaml';
 import type { CapabilityManifest } from '@acr/schema';
 
@@ -30,6 +31,9 @@ switch (command) {
   case 'lint':
     cmdLint(args.slice(1));
     break;
+  case 'search':
+    cmdSearch(args.slice(1));
+    break;
   case 'help':
   case '--help':
   case '-h':
@@ -51,6 +55,7 @@ function printHelp(): void {
     validate --all <dir>     Validate all capabilities in a directory
     lint <path>              Lint LOD content quality for a capability
     lint --all <dir>         Lint all capabilities in a directory
+    search <query> <dir>     Search capabilities by name, provides, or description
     migrate <SKILL.md>       Generate capability from existing skill file
     budget <path>            Calculate context budget for a capability/set/role
     resolve <path>           Show dependency resolution plan
@@ -186,6 +191,27 @@ function cmdLint(args: string[]): void {
 
   const totalErrors = results.reduce((sum, r) => sum + r.errors.length, 0);
   process.exit(totalErrors > 0 ? 1 : 0);
+}
+
+function cmdSearch(args: string[]): void {
+  if (args.length < 2) {
+    console.error('Usage: acr search <query> <capabilities-dir>');
+    process.exit(1);
+  }
+
+  // Last arg is the directory, everything else is the query
+  const dir = resolvePath(args[args.length - 1]);
+  const query = args.slice(0, -1).join(' ');
+
+  const index = buildIndex(dir);
+  const results = searchRegistry(index, query);
+
+  console.log(`\n🔍 Search: "${query}" (${index.capabilities.length} capabilities indexed)\n`);
+  console.log(formatSearchResults(results));
+
+  if (results.length === 0) {
+    console.log('  Try a different query or check the directory path.');
+  }
 }
 
 function cmdMigrate(args: string[]): void {
