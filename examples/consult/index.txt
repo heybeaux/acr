@@ -1,0 +1,1 @@
+consult: Multi-model expert panel — spawn parallel LLMs, collect independent perspectives, synthesize recommendation.

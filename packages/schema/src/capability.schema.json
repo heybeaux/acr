@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acr.heybeaux.dev/schemas/capability.schema.json",
+  "title": "ACR Capability Manifest",
+  "description": "Schema for Agent Capability Runtime capability.yaml manifests",
+  "type": "object",
+  "required": ["name", "version", "type", "description", "provides", "budget"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique identifier for the capability",
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["capability", "capability-set"],
+      "description": "Whether this is an individual capability or a set bundling others"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of what this capability does",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "provides": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Tags declaring what this capability offers"
+    },
+    "requires": {
+      "type": "object",
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ToolRequirement" },
+          "description": "MCP tools required by this capability"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CapabilityRequirement" },
+          "description": "Other capabilities this one depends on"
+        },
+        "context": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ContextRequirement" },
+          "description": "Named reference documents or context sources"
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget": {
+      "type": "object",
+      "required": ["index", "summary", "standard"],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Token budget for index level (~one line)"
+        },
+        "summary": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 1000,
+          "description": "Token budget for summary level"
+        },
+        "standard": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Token budget for standard level. 0 for capability-sets."
+        },
+        "deep": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Token budget for deep level (optional)"
+        },
+        "children_total": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total budget for all child capabilities (capability-sets only)"
+        },
+        "overflow_policy": {
+          "type": "string",
+          "enum": ["demote_lowest_priority", "error", "request_human"],
+          "default": "demote_lowest_priority",
+          "description": "What to do when children exceed budget"
+        }
+      },
+      "additionalProperties": false
+    },
+    "activation": {
+      "type": "object",
+      "properties": {
+        "triggers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Trigger" }
+        },
+        "trigger_logic": {
+          "type": "string",
+          "enum": ["OR", "AND"],
+          "default": "OR",
+          "description": "How multiple triggers compose"
+        },
+        "co_activates": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Capabilities to co-mount when this one is activated"
+        },
+        "conflicts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Capabilities that cannot coexist with this one"
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": ["allow", "deny"]
+            }
+          },
+          "description": "Per-tool, per-method permission rules"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["read-only", "read-write", "never"]
+          },
+          "description": "Data access permissions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "behavioral": {
+      "type": "object",
+      "properties": {
+        "core": {
+          "type": "string",
+          "description": "Irreducible behavioral instructions"
+        },
+        "overlays": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Overlay" }
+        }
+      },
+      "required": ["core"],
+      "additionalProperties": false
+    },
+    "state_schema": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Schema version for migration on changes"
+        },
+        "max_size_tokens": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum tokens for serialized state"
+        },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/StateField" }
+        }
+      },
+      "required": ["version", "max_size_tokens", "fields"],
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "checklist": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Items the agent should verify before marking complete"
+        },
+        "completion_signal": {
+          "type": "string",
+          "description": "What signals the capability task is done"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "if": {
+    "properties": { "type": { "const": "capability" } }
+  },
+  "then": {
+    "required": ["behavioral"],
+    "properties": {
+      "budget": {
+        "required": ["index", "summary", "standard"]
+      }
+    }
+  },
+  "else": {
+    "if": {
+      "properties": { "type": { "const": "capability-set" } }
+    },
+    "then": {
+      "required": ["requires"],
+      "properties": {
+        "budget": {
+          "required": ["index", "summary", "children_total"]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ToolRequirement": {
+      "type": "object",
+      "required": ["mcp"],
+      "properties": {
+        "mcp": {
+          "type": "string",
+          "description": "MCP server name"
+        },
+        "methods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required methods from this MCP server"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "CapabilityRequirement": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Capability name"
+        },
+        "resolution": {
+          "type": "string",
+          "enum": ["index", "summary", "standard", "deep"],
+          "default": "standard",
+          "description": "Resolution level to load this dependency at"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ContextRequirement": {
+      "type": "object",
+      "required": ["ref"],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Named reference document"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "Trigger": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["pattern", "runtime_event"]
+        },
+        "match": {
+          "type": "string",
+          "description": "Regex pattern (for type: pattern)"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Evaluator expression (for type: runtime_event)"
+        }
+      },
+      "if": {
+        "properties": { "type": { "const": "pattern" } }
+      },
+      "then": {
+        "required": ["match"]
+      },
+      "else": {
+        "required": ["condition"]
+      },
+      "additionalProperties": false
+    },
+    "Overlay": {
+      "type": "object",
+      "required": ["ref"],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Reference name for the overlay"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Higher = applied later = wins conflicts"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StateField": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "boolean", "string[]", "object", "object[]"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

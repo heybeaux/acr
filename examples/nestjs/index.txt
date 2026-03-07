@@ -1,0 +1,1 @@
+nestjs: NestJS backend patterns — modules, Prisma, guards, interceptors, testing, decorators, error handling.

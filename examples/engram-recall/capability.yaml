@@ -1,0 +1,71 @@
+name: engram-recall
+type: capability
+version: 1.0.0
+description: "Query Engram memory database for specific information — user preferences, prior decisions, project context, and identity facts."
+
+provides:
+  - memory-recall
+  - context-retrieval
+
+requires:
+  tools:
+    - mcp: exec
+      methods: [run_command]
+      optional: false
+  capabilities: []
+  context:
+    - ref: engram-api-credentials
+      optional: false
+
+budget:
+  index: 11
+  summary: 160
+  standard: 900
+  deep: 1800
+
+activation:
+  triggers:
+    - type: pattern
+      match: "(remember|recall|what did .+ say about|what('s| is) (my|their) .+ preference)"
+    - type: pattern
+      match: "(check (engram|memory)|look up .+ in (engram|memory))"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  tools:
+    exec:
+      run_command: allow
+  data:
+    engram_memories: read-only
+
+behavioral:
+  core: |
+    When recalling information from Engram:
+    1. Be specific with queries — "Beaux's coffee preference" not "coffee"
+    2. Use layer filters: IDENTITY for core facts, PROJECT for work context
+    3. Start with limit=3, increase only if needed
+    4. After using a memory, mark it as used via POST /v1/memories/:id/used
+    5. Do NOT use for general conversation — only for specific fact retrieval
+    6. Do NOT query for every question — check your current context first
+    
+    API: POST to /v1/memories/query with query, limit, layers parameters.
+    Auth: X-AM-API-Key header + X-AM-User-ID header.
+  overlays: []
+
+state_schema:
+  version: 1
+  max_size_tokens: 150
+  fields:
+    - name: last_query
+      type: string
+    - name: results_found
+      type: number
+
+verification:
+  checklist:
+    - "Used specific search terms"
+    - "Applied appropriate layer filter"
+    - "Kept result limit reasonable"
+  completion_signal: memory_retrieved

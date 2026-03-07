@@ -1,0 +1,86 @@
+name: consult
+type: capability
+version: 1.0.0
+description: "Multi-model expert panel consultation. Spawns parallel sub-agents across different LLMs, collects independent perspectives, and synthesizes into a structured recommendation."
+
+provides:
+  - expert-consultation
+  - multi-model-analysis
+  - decision-support
+
+requires:
+  tools:
+    - mcp: sessions_spawn
+      methods: [spawn]
+      optional: false
+    - mcp: subagents
+      methods: [list, kill]
+      optional: false
+  capabilities:
+    - name: engram-recall
+      resolution: summary
+      optional: true
+  context: []
+
+budget:
+  index: 14
+  summary: 200
+  standard: 1200
+  deep: 2800
+
+activation:
+  triggers:
+    - type: pattern
+      match: "^/consult"
+    - type: pattern
+      match: "(need a (second|expert) opinion|consult the panel|get (other )?perspectives)"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  tools:
+    sessions_spawn:
+      spawn: allow
+    subagents:
+      list: allow
+      kill: allow
+  data:
+    user_context: read-only
+
+behavioral:
+  core: |
+    When running a panel consultation:
+    1. Frame the problem as a sanitized brief (Context, Tried, Question, Constraints, Criteria)
+    2. Strip ALL sensitive data — no API keys, credentials, private data, client info
+    3. Spawn sub-agents in parallel — one per model, all in same tool call block
+    4. Default panel: 2-3 models with different strengths
+    5. Wait for responses (timeout: 3 min per model)
+    6. If a model times out, proceed without it and note the gap
+    7. Synthesize into: Agreement, Disagreement, New Angles, Recommendation, Confidence
+    8. Panel models are advisory only — you make the recommendation, human makes the call
+    9. If responses are contradictory with no clear winner → escalate to human
+    10. Store key insights in memory if available
+  overlays: []
+
+state_schema:
+  version: 1
+  max_size_tokens: 300
+  fields:
+    - name: topic
+      type: string
+    - name: models_consulted
+      type: string[]
+    - name: responses_received
+      type: number
+    - name: synthesis_complete
+      type: boolean
+
+verification:
+  checklist:
+    - "Sanitized brief of sensitive data"
+    - "Spawned models in parallel"
+    - "Waited for all responses or timeout"
+    - "Produced structured synthesis"
+    - "Included confidence level"
+  completion_signal: synthesis_delivered

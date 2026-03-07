@@ -1,0 +1,73 @@
+name: linear
+type: capability
+version: 1.0.0
+description: "Interact with Linear for issue tracking and project management — create, update, search, and comment on issues via GraphQL API."
+
+provides:
+  - issue-tracking
+  - project-management
+  - ticket-management
+
+requires:
+  tools:
+    - mcp: exec
+      methods: [run_command]
+      optional: false
+  capabilities: []
+  context:
+    - ref: linear-api-key
+      optional: false
+
+budget:
+  index: 12
+  summary: 180
+  standard: 1000
+  deep: 2400
+
+activation:
+  triggers:
+    - type: pattern
+      match: "(WH|HEY|ENG)-\\d+"
+    - type: pattern
+      match: "(create|update|search|find|close|assign) .*(issue|ticket|task)"
+    - type: pattern
+      match: "(linear|project status|sprint|backlog)"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  tools:
+    exec:
+      run_command: allow
+  data:
+    linear_issues: read-write
+    linear_api_key: read-only
+
+behavioral:
+  core: |
+    When interacting with Linear:
+    1. All requests use GraphQL at https://api.linear.app/graphql
+    2. Auth via Authorization header with API key
+    3. Issue identifiers (e.g., WH-1465) work directly in issue(id:) queries
+    4. For mutations, use the UUID id field, NOT the identifier
+    5. Comments support full markdown including code blocks
+    6. Priority values: 0=None, 1=Urgent, 2=High, 3=Medium, 4=Low
+    7. Workflow states: backlog, unstarted, started, completed, canceled
+  overlays: []
+
+state_schema:
+  version: 1
+  max_size_tokens: 200
+  fields:
+    - name: active_issue
+      type: string
+    - name: team_id
+      type: string
+
+verification:
+  checklist:
+    - "Used correct identifier format"
+    - "Verified issue exists before updating"
+    - "Used UUID for mutations, identifier for queries"
+  completion_signal: issue_action_completed

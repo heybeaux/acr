@@ -1,0 +1,78 @@
+name: nestjs
+type: capability
+version: 1.0.0
+description: "NestJS backend development patterns — module scaffolding, Prisma integration, guards/interceptors, testing, decorators, error handling, scheduling, and configuration."
+
+provides:
+  - nestjs-development
+  - backend-development
+  - api-development
+
+requires:
+  tools:
+    - mcp: exec
+      methods: [run_command]
+      optional: false
+  capabilities: []
+  context:
+    - ref: prisma-schema
+      optional: true
+
+budget:
+  index: 12
+  summary: 200
+  standard: 1200
+  deep: 9500
+
+activation:
+  triggers:
+    - type: pattern
+      match: "(nestjs|nest\\.js|nest generate|nest g )"
+    - type: pattern
+      match: "(module|service|controller|guard|interceptor|decorator|exception filter)"
+    - type: runtime_event
+      condition: file_exists("nest-cli.json")
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  tools:
+    exec:
+      run_command: allow
+  data:
+    source_code: read-write
+
+behavioral:
+  core: |
+    When working with NestJS:
+    1. Follow file structure convention: src/modules/{feature}/ with module, controller, service, dto/, entities/
+    2. Naming: {Feature}Module, {Feature}Service, {Feature}Controller, Create{Feature}Dto
+    3. Always use dependency injection via constructor
+    4. Use PrismaService for database access — never raw SQL
+    5. Validate input with class-validator DTOs
+    6. Handle errors with exception filters, not try/catch in controllers
+    7. Use guards for auth, interceptors for cross-cutting concerns
+    8. Write unit tests for services, e2e tests for controllers
+    
+    CLI commands:
+    - nest g resource {name} --no-spec (full CRUD scaffold)
+    - nest g module/service/controller {name} (individual components)
+  overlays: []
+
+state_schema:
+  version: 1
+  max_size_tokens: 200
+  fields:
+    - name: target_module
+      type: string
+    - name: files_created
+      type: string[]
+
+verification:
+  checklist:
+    - "Followed NestJS file structure conventions"
+    - "Used dependency injection"
+    - "Added DTO validation"
+    - "Implemented proper error handling"
+  completion_signal: module_implemented

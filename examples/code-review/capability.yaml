@@ -1,0 +1,74 @@
+name: code-review
+type: capability
+version: 1.0.0
+description: "Comprehensive code review and audit framework for analyzing codebases, identifying technical debt, dead code, security vulnerabilities, and generating prioritized cleanup reports."
+
+provides:
+  - code-review
+  - code-audit
+  - technical-debt-analysis
+
+requires:
+  tools:
+    - mcp: exec
+      methods: [run_command]
+      optional: false
+  capabilities: []
+  context: []
+
+budget:
+  index: 12
+  summary: 180
+  standard: 1400
+  deep: 3200
+
+activation:
+  triggers:
+    - type: pattern
+      match: "(code review|code audit|tech(nical)? debt|dead code|security audit)"
+    - type: pattern
+      match: "(review (this|the) (codebase|repo|project)|audit (this|the) code)"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  tools:
+    exec:
+      run_command: allow
+  data:
+    source_code: read-only
+
+behavioral:
+  core: |
+    When conducting a code review:
+    1. Start with discovery — file count, line count, largest files, directory structure
+    2. Analyze dead code — unused exports, empty files, abandoned WIP files
+    3. Audit dependencies — security vulnerabilities (npm audit), unused deps, outdated packages
+    4. Check code quality — any types, console statements, TODOs, long functions
+    5. Review architecture — god objects, circular deps, duplicate patterns, missing abstractions
+    6. Assess test coverage — files without tests, coverage gaps
+    7. Generate a structured report with severity ratings (Critical/High/Medium/Low)
+    8. Provide prioritized recommendations: Immediate → Short-term → Long-term
+  overlays: []
+
+state_schema:
+  version: 1
+  max_size_tokens: 300
+  fields:
+    - name: target_repo
+      type: string
+    - name: phase_completed
+      type: string[]
+    - name: findings
+      type: object[]
+
+verification:
+  checklist:
+    - "Ran discovery commands"
+    - "Checked for dead code"
+    - "Ran dependency audit"
+    - "Assessed code quality metrics"
+    - "Reviewed architecture"
+    - "Generated prioritized report"
+  completion_signal: audit_report_delivered
