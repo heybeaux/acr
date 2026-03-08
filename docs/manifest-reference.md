@@ -111,6 +111,31 @@ Capabilities to co-mount when this one activates.
 #### `activation.conflicts` (string[])
 Capabilities that cannot coexist with this one.
 
+### `constraints` (string[])
+Hard rules that MUST be followed when this capability is active. Surfaced at summary LOD or higher. Injected as a dedicated `⚠️ CONSTRAINTS (MUST follow)` section before any capability content in generated context.
+
+Use for import paths, naming conventions, or patterns that override model training defaults. Use imperative language (NEVER, ALWAYS, MUST, DO NOT) for strongest adherence.
+
+```yaml
+constraints:
+  - "NEVER import from @storybook/react — ALWAYS use @storybook/nextjs"
+  - "ALWAYS use CSF3 format for component stories"
+  - "DO NOT use deprecated API v1 endpoints"
+```
+
+**Why this exists:** Model training data can overpower reference material in standard LOD content. Constraints get priority positioning in the prompt to counteract this. See the gc-storybook example for a real-world case.
+
+### `file_patterns` (string[])
+File extensions or glob patterns that boost this capability's priority during task resolution. When a TaskResolver is configured with `outputFiles` and a file matches, the capability receives a significant score boost and primary (deep) resolution.
+
+```yaml
+file_patterns:
+  - ".stories.tsx"
+  - ".stories.ts"
+  - ".test.ts"
+  - "*.prisma"
+```
+
 ### `permissions` (object)
 Enforced by the Capability Proxy.
 
