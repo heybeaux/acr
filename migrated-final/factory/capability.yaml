@@ -1,0 +1,64 @@
+name: factory
+type: capability
+version: 0.1.0
+description: "Run the Factory 4.0 pipeline to process Linear tickets into PRs automatically. Use when: (1) user says /factory or asks to run the factory, (2) batch-processing tickets labeled factory-ready, (3)..."
+
+provides:
+  - factory
+  - monitoring
+  - background-jobs
+  - realtime
+  - access-control
+  - ai-operations
+  - version-control
+  - batch-processing
+  - factory-ready
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 20
+  summary: 154
+  standard: 1462
+  # deep: 2924  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "factory"
+    - type: pattern
+      match: "/factory"
+    - type: pattern
+      match: "run the factory"
+    - type: pattern
+      match: "factory-ready"
+    - type: pattern
+      match: "pipeline status"
+  trigger_logic: OR
+  co_activates: []
+  conflicts:
+    - single manual code changes
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    ### Run a batch
+    ```bash
+    cd ~/projects/ops/factory
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

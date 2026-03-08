@@ -1,0 +1,52 @@
+name: coding-agent
+type: capability
+version: 0.1.0
+description: "Use **bash** (with optional background mode) for all coding agent work. Simple and effective."
+
+provides:
+  - coding-agent
+  - deployment
+  - monitoring
+  - background-jobs
+  - realtime
+  - version-control
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 23
+  summary: 104
+  standard: 2539
+  # deep: 5078  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "coding[ -]agent"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    For quick prompts/chats, create a temp git repo and run:
+    
+    ```bash
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

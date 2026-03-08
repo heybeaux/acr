@@ -1,0 +1,50 @@
+name: summarize
+type: capability
+version: 0.1.0
+description: "Summarize or extract text/transcripts from URLs, podcasts, and local files (great fallback for “transcribe this YouTube/video”)."
+
+provides:
+  - summarize
+  - access-control
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 19
+  summary: 70
+  standard: 389
+  # deep: 778  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "summarize"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    ```bash
+    summarize "https://example.com" --model google/gemini-3-flash-preview
+    summarize "/path/to/file.pdf" --model google/gemini-3-flash-preview
+    summarize "https://youtu.be/dQw4w9WgXcQ" --youtube auto
+    ```
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

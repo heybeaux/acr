@@ -1,0 +1,56 @@
+name: consult
+type: capability
+version: 0.1.0
+description: "Multi-model expert panel consultation. Use when: (1) stuck on a problem for 20+ minutes, (2) architecture or pricing decisions with irreversible consequences, (3) user says /consult, (4) genuine..."
+
+provides:
+  - consult
+  - multi-model
+  - sub-agents
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 23
+  summary: 147
+  standard: 992
+  # deep: 1984  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "consult"
+    - type: pattern
+      match: "/consult"
+  trigger_logic: OR
+  co_activates: []
+  conflicts:
+    - routine tasks
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    When triggered (user says `/consult` or you identify a genuine need):
+    
+    1. Frame the problem as a brief (see template below)
+    2. Spawn sub-agents in parallel — one per model
+    3. Wait for all responses (timeout: 3 min)
+    4. Synthesize into a structured recommendation
+    5. Store key insights in Engram (if available)
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

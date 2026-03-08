@@ -1,0 +1,67 @@
+name: github
+type: capability
+version: 0.1.0
+description: "GitHub operations via `gh` CLI: issues, PRs, CI runs, code review, API queries. Use when: (1) checking PR status or CI, (2) creating/commenting on issues, (3) listing/filtering PRs or issues, (4)..."
+
+provides:
+  - github
+  - pull-request-management
+  - code-review
+  - ci-monitoring
+  - authentication
+  - background-jobs
+  - version-control
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 24
+  summary: 148
+  standard: 875
+  # deep: 1750  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "github"
+    - type: pattern
+      match: "PR status or CI"
+    - type: pattern
+      match: "on issues"
+    - type: pattern
+      match: "PRs or issues"
+    - type: pattern
+      match: "run logs"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    Use the `gh` CLI to interact with GitHub repositories, issues, PRs, and CI.
+    
+    ```
+    # Authenticate (one-time)
+    gh auth login
+    
+    # Verify
+    gh auth status
+    ```
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

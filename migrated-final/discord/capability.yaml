@@ -1,0 +1,55 @@
+name: discord
+type: capability
+version: 0.1.0
+description: "Discord ops via the message tool (channel=discord)."
+
+provides:
+  - discord
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 14
+  summary: 49
+  standard: 762
+  # deep: 1524  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "discord"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    Use the `message` tool. No provider-specific `discord` tool exposed to the agent.
+    
+    ```
+    {
+      "action": "send",
+      "channel": "discord",
+      "to": "channel:123",
+      "message": "hello",
+      "silent": true
+    }
+    ```
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

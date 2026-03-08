@@ -1,0 +1,52 @@
+name: weather
+type: capability
+version: 0.1.0
+description: "Get current weather and forecasts via wttr.in or Open-Meteo. Use when: user asks about weather, temperature, or forecasts for any location. NOT for: historical weather data, severe weather alerts,..."
+
+provides:
+  - weather
+  - notifications
+  - open-meteo
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 22
+  summary: 100
+  standard: 481
+  # deep: 962  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "weather"
+    - type: pattern
+      match: "about weather"
+  trigger_logic: OR
+  co_activates: []
+  conflicts:
+    - historical weather data
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    ### Current Weather
+    
+    ```bash
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete

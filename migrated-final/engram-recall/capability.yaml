@@ -1,0 +1,54 @@
+name: engram-recall
+type: capability
+version: 0.1.0
+description: "Query Engram memory database for specific information. Use when you need to recall facts about the user, prior decisions, or preferences that may not be in your current injected context."
+
+provides:
+  - engram-recall
+  - memory-management
+
+requires:
+  tools: []
+    # TODO: Declare required MCP tools
+  capabilities: []
+  context: []
+
+budget:
+  index: 21
+  summary: 98
+  standard: 882
+  # deep: 1764  # Uncomment and create deep.md for extended reference docs
+
+activation:
+  triggers:
+    - type: pattern
+      match: "engram[ -]recall"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+# permissions:
+#   tools: {}
+#   data: {}
+
+behavioral:
+  core: |
+    Query the Engram memory database on-demand for specific information.
+    
+    ```
+    # Local instance (preferred — 7k+ memories, faster)
+    curl -s -X POST "http://localhost:3002/v1/memories/query" \
+      -H "Content-Type: application/json" \
+      -H "X-AM-User-ID: beaux" \
+      -d '{"query": "YOUR SEARCH QUERY", "limit": 5}' | jq '.memories[] | {raw, layer, importance: .importanceScore}'
+    ```
+  overlays: []
+
+# state_schema:
+#   version: 1
+#   max_size_tokens: 200
+#   fields: []
+
+# verification:
+#   checklist: []
+#   completion_signal: task_complete
