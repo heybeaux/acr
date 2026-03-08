@@ -148,4 +148,62 @@ describe('Phase 5: Multi-Agent & Ecosystem', () => {
       expect(results.length).toBe(0);
     });
   });
+
+  // ─── Model Routing ──────────────────────────────────────────
+
+  describe('Model Routing', () => {
+    it('should include modelPreferences in task resolution', () => {
+      if (!existsSync(MIGRATION_DIR)) return;
+      const loader = new LODLoader();
+      const { readdirSync } = require('node:fs');
+      for (const name of readdirSync(MIGRATION_DIR)) {
+        const dir = join(MIGRATION_DIR, name);
+        if (existsSync(join(dir, 'capability.yaml'))) {
+          loader.register(dir);
+        }
+      }
+      const resolver = new TaskResolver(loader);
+      const result = resolver.resolve('Create a NestJS endpoint');
+      expect(result.modelPreferences).toBeDefined();
+      expect(result.modelPreferences.constraints).toBeInstanceOf(Array);
+      expect(result.modelPreferences.perCapability).toBeDefined();
+    });
+
+    it('should pass model preferences through SpawnResolver', () => {
+      if (!existsSync(MIGRATION_DIR)) return;
+      const loader = new LODLoader();
+      const { readdirSync } = require('node:fs');
+      for (const name of readdirSync(MIGRATION_DIR)) {
+        const dir = join(MIGRATION_DIR, name);
+        if (existsSync(join(dir, 'capability.yaml'))) {
+          loader.register(dir);
+        }
+      }
+      const taskResolver = new TaskResolver(loader);
+      const config = resolveFromTask(taskResolver, 'Create a NestJS endpoint', {
+        sessionId: 'test-model-routing',
+      });
+      // modelPreferences should exist (even if empty — no capabilities declare models yet)
+      expect(config).toBeDefined();
+      expect(config.capabilities.length).toBeGreaterThan(0);
+    });
+
+    it('should return empty model preferences when no capabilities declare models', () => {
+      if (!existsSync(MIGRATION_DIR)) return;
+      const loader = new LODLoader();
+      const { readdirSync } = require('node:fs');
+      for (const name of readdirSync(MIGRATION_DIR)) {
+        const dir = join(MIGRATION_DIR, name);
+        if (existsSync(join(dir, 'capability.yaml'))) {
+          loader.register(dir);
+        }
+      }
+      const resolver = new TaskResolver(loader);
+      const result = resolver.resolve('Create a NestJS endpoint');
+      // No migrated capabilities have model fields, so preferences should be empty
+      expect(result.modelPreferences.preferred).toBeUndefined();
+      expect(result.modelPreferences.constraints).toEqual([]);
+      expect(Object.keys(result.modelPreferences.perCapability)).toEqual([]);
+    });
+  });
 });

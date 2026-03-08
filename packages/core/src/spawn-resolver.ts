@@ -60,6 +60,14 @@ export interface SpawnConfig {
 
   /** Session ID */
   sessionId: string;
+
+  /** Model routing preferences inherited from capabilities */
+  modelPreferences?: {
+    preferred?: string;
+    fallback?: string;
+    constraints: string[];
+    perCapability: Record<string, { preferred?: string; fallback?: string | null; constraint?: string }>;
+  };
 }
 
 /**
@@ -120,7 +128,15 @@ export function resolveSpawnConfig(
  *   );
  */
 export function resolveFromTask(
-  taskResolver: { resolve: (task: string) => { capabilities: Array<{ name: string; resolution: ResolutionLevel }> } },
+  taskResolver: { resolve: (task: string) => {
+    capabilities: Array<{ name: string; resolution: ResolutionLevel }>;
+    modelPreferences?: {
+      preferred?: string;
+      fallback?: string;
+      constraints: string[];
+      perCapability: Record<string, { preferred?: string; fallback?: string | null; constraint?: string }>;
+    };
+  } },
   taskDescription: string,
   options: {
     sessionId: string;
@@ -138,7 +154,7 @@ export function resolveFromTask(
     resolutions[cap.name] = cap.resolution;
   }
 
-  return resolveSpawnConfig(
+  const config = resolveSpawnConfig(
     options.parentWindowSize ?? 128000,
     options.parentPolicy,
     {
@@ -149,4 +165,11 @@ export function resolveFromTask(
       policyOverrides: options.policyOverrides,
     },
   );
+
+  // Pass through model preferences from task resolution
+  if (resolved.modelPreferences) {
+    config.modelPreferences = resolved.modelPreferences;
+  }
+
+  return config;
 }

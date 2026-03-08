@@ -34,6 +34,20 @@ export interface TaskResolution {
 
   /** Capabilities that were considered but excluded */
   excluded: string[];
+
+  /** Model preferences from selected capabilities (highest priority wins) */
+  modelPreferences: ModelPreferenceMap;
+}
+
+export interface ModelPreferenceMap {
+  /** Resolved preferred model (from highest-priority capability that declares one) */
+  preferred?: string;
+  /** Resolved fallback model */
+  fallback?: string;
+  /** All hard constraints that must be satisfied */
+  constraints: string[];
+  /** Per-capability model preferences (for multi-agent spawning) */
+  perCapability: Record<string, { preferred?: string; fallback?: string | null; constraint?: string }>;
 }
 
 export interface TaskCapability {
@@ -187,13 +201,57 @@ export class TaskResolver {
     const context = this.generateContext(selected);
     const tokenCost = countTokens(context);
 
+    // Collect model preferences from selected capabilities
+    const modelPreferences = this.collectModelPreferences(selected);
+
     return {
       capabilities: selected,
       context,
       tokenCost,
       reasoning,
       excluded,
+      modelPreferences,
     };
+  }
+
+  /**
+   * Collect model preferences from resolved capabilities.
+   * Highest-priority capability's model wins for the top-level preferred/fallback.
+   * All hard constraints are aggregated.
+   */
+  private collectModelPreferences(capabilities: TaskCapability[]): ModelPreferenceMap {
+    const priorityOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+    const perCapability: Record<string, { preferred?: string; fallback?: string | null; constraint?: string }> = {};
+    const constraints: string[] = [];
+    let preferred: string | undefined;
+    let fallback: string | undefined;
+    let bestPriority = 0;
+
+    for (const cap of capabilities) {
+      const manifest = this.loader.getManifest(cap.name);
+      if (!manifest?.model) continue;
+
+      const model = manifest.model;
+      perCapability[cap.name] = {
+        preferred: model.preferred,
+        fallback: model.fallback,
+        constraint: model.constraint,
+      };
+
+      if (model.constraint && !constraints.includes(model.constraint)) {
+        constraints.push(model.constraint);
+      }
+
+      // Highest priority capability's model wins top-level preference
+      const priority = priorityOrder[manifest.priority ?? 'medium'] ?? 2;
+      if (model.preferred && priority > bestPriority) {
+        preferred = model.preferred;
+        fallback = model.fallback ?? undefined;
+        bestPriority = priority;
+      }
+    }
+
+    return { preferred, fallback, constraints, perCapability };
   }
 
   /**

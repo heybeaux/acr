@@ -272,6 +272,26 @@
       "enum": ["critical", "high", "medium", "low"],
       "default": "medium",
       "description": "Priority level for eviction decisions"
+    },
+    "model": {
+      "type": "object",
+      "description": "Model routing preferences for this capability (optional, for multi-model pipelines)",
+      "properties": {
+        "preferred": {
+          "type": "string",
+          "description": "Provider/model identifier (e.g., google/gemini-2.5-pro, anthropic/claude-opus-4-6)"
+        },
+        "fallback": {
+          "type": ["string", "null"],
+          "description": "Fallback model if preferred is unavailable"
+        },
+        "constraint": {
+          "type": "string",
+          "enum": ["requires-image-gen", "requires-vision", "requires-reasoning", "requires-code-exec", "requires-long-context"],
+          "description": "Hard model requirement — runtime MUST select a model satisfying this constraint"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "if": {

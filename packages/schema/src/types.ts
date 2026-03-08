@@ -12,6 +12,13 @@ export type DataPermission = 'read-only' | 'read-write' | 'never';
 export type OverflowPolicy = 'demote_lowest_priority' | 'error' | 'request_human';
 export type StateFieldType = 'string' | 'number' | 'boolean' | 'string[]' | 'object' | 'object[]';
 export type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
+export type ModelConstraint = 'requires-image-gen' | 'requires-vision' | 'requires-reasoning' | 'requires-code-exec' | 'requires-long-context';
+
+export interface ModelPreference {
+  preferred?: string;         // Provider/model ID (e.g., "google/gemini-2.5-pro")
+  fallback?: string | null;   // Fallback model if preferred unavailable
+  constraint?: ModelConstraint; // Hard requirement tag
+}
 
 export interface ToolRequirement {
   mcp: string;
@@ -133,6 +140,7 @@ export interface CapabilityManifest {
   verification?: Verification;
   priority?: PriorityLevel;      // eviction priority (default: 'medium')
   publisher?: Publisher;          // authorship, integrity, and marketplace metadata
+  model?: ModelPreference;        // preferred model routing for this capability
 }
 
 /**
