@@ -135,10 +135,31 @@ export class LODLoader {
 
   /**
    * Generate a combined context block from loaded capabilities.
-   * Includes the capability registry (all at index) plus mounted capabilities.
+   * Includes constraints block, the capability registry (all at index), plus mounted capabilities.
    */
   generateContext(resolutions: Map<string, ResolutionLevel>): string {
     const sections: string[] = [];
+
+    // Collect constraints from all mounted capabilities (summary or higher)
+    const allConstraints: { capability: string; rules: string[] }[] = [];
+    for (const [name, resolution] of resolutions) {
+      if (resolution === 'index') continue;
+      const manifest = this.manifests.get(name);
+      if (manifest?.constraints?.length) {
+        allConstraints.push({ capability: name, rules: manifest.constraints });
+      }
+    }
+
+    // Constraints block — injected FIRST for maximum model attention
+    if (allConstraints.length > 0) {
+      sections.push('## ⚠️ CONSTRAINTS (MUST follow)\n');
+      for (const { capability, rules } of allConstraints) {
+        for (const rule of rules) {
+          sections.push(`- **[${capability}]** ${rule}`);
+        }
+      }
+      sections.push('');
+    }
 
     // Registry header — all capabilities at index level
     sections.push('## Capability Registry\n');

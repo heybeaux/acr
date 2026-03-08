@@ -138,6 +138,8 @@ export interface CapabilityManifest {
   behavioral?: Behavioral;       // required for type: 'capability'
   state_schema?: StateSchema;
   verification?: Verification;
+  constraints?: string[];        // hard rules that MUST be followed — surfaced at summary LOD or higher
+  file_patterns?: string[];      // file extensions/globs that boost this capability's priority (e.g., '.stories.tsx', '.test.ts')
   priority?: PriorityLevel;      // eviction priority (default: 'medium')
   publisher?: Publisher;          // authorship, integrity, and marketplace metadata
   model?: ModelPreference;        // preferred model routing for this capability

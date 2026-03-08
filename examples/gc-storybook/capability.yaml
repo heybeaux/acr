@@ -1,0 +1,35 @@
+name: gc-storybook
+version: 1.0.0
+type: capability
+description: "Storybook component story authoring for the GC project using Next.js framework adapter"
+provides:
+  - storybook
+  - component-stories
+  - visual-testing
+
+budget:
+  index: 15
+  summary: 200
+  standard: 800
+
+activation:
+  triggers:
+    - type: pattern
+      match: "\\b(storybook|stories|story)\\b"
+    - type: pattern
+      match: "\\.stories\\.(tsx|ts|jsx|js)"
+
+constraints:
+  - "NEVER import from @storybook/react — ALWAYS use import { Meta, StoryObj } from '@storybook/nextjs'"
+  - "ALWAYS use the composeStories pattern from @storybook/nextjs for portable stories"
+
+file_patterns:
+  - ".stories.tsx"
+  - ".stories.ts"
+  - ".stories.jsx"
+  - ".stories.js"
+
+behavioral:
+  core: "Author Storybook stories using the @storybook/nextjs framework adapter. Never use @storybook/react directly."
+
+priority: high

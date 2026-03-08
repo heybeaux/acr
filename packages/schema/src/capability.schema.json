@@ -267,6 +267,27 @@
       },
       "additionalProperties": false
     },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 500
+      },
+      "description": "Hard rules that MUST be followed when this capability is active. Surfaced at summary LOD or higher. Use for import paths, naming conventions, or patterns that override model training defaults.",
+      "uniqueItems": true,
+      "maxItems": 20
+    },
+    "file_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[\\w.*/-]+$"
+      },
+      "description": "File extensions or glob patterns that boost this capability's priority during task resolution (e.g., '.stories.tsx', '.test.ts', '.prisma')",
+      "uniqueItems": true,
+      "maxItems": 20
+    },
     "priority": {
       "type": "string",
       "enum": ["critical", "high", "medium", "low"],

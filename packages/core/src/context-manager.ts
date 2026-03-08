@@ -509,6 +509,24 @@ export class ContextManager {
         return zoneOrder[a.zone] - zoneOrder[b.zone];
       });
 
+    // Constraints block — injected FIRST for maximum model attention
+    const allConstraints: { capability: string; rules: string[] }[] = [];
+    for (const entry of sorted) {
+      if (entry.manifest.constraints?.length) {
+        allConstraints.push({ capability: entry.manifest.name, rules: entry.manifest.constraints });
+      }
+    }
+
+    if (allConstraints.length > 0) {
+      sections.push('## ⚠️ CONSTRAINTS (MUST follow)');
+      for (const { capability, rules } of allConstraints) {
+        for (const rule of rules) {
+          sections.push(`- **[${capability}]** ${rule}`);
+        }
+      }
+      sections.push('');
+    }
+
     // Registry (always included)
     sections.push('## Available Capabilities');
     for (const [, entry] of this.capabilities) {

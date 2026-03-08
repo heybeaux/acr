@@ -72,6 +72,9 @@ export interface TaskResolverConfig {
 
   /** Maximum capabilities to include (default: 8) */
   maxCapabilities?: number;
+
+  /** Output file paths for file-pattern-aware priority boosting */
+  outputFiles?: string[];
 }
 
 interface ScoredCapability {
@@ -104,6 +107,7 @@ export class TaskResolver {
       primaryResolution: config.primaryResolution ?? 'deep',
       semanticThreshold: config.semanticThreshold ?? 0.3,
       maxCapabilities: config.maxCapabilities ?? 8,
+      outputFiles: config.outputFiles ?? [],
     };
 
     // Register all manifests with the trigger engine
@@ -338,6 +342,19 @@ export class TaskResolver {
         }
       }
 
+      // Signal 4: File pattern matching (output files → capability file_patterns)
+      if (this.config.outputFiles.length > 0 && manifest.file_patterns) {
+        for (const pattern of manifest.file_patterns) {
+          for (const file of this.config.outputFiles) {
+            if (fileMatchesPattern(file, pattern)) {
+              score += 40;
+              reasons.push(`file pattern match: "${pattern}" → "${file}"`);
+              isPrimary = true;
+            }
+          }
+        }
+      }
+
       // Only include capabilities with meaningful scores
       if (score > 0) {
         results.push({ manifest, score, reasons, isPrimary });
@@ -349,9 +366,31 @@ export class TaskResolver {
 
   /**
    * Generate the context block for worker injection.
+   * Constraints are injected as a dedicated CRITICAL section before capability content.
    */
   private generateContext(capabilities: TaskCapability[]): string {
     const sections: string[] = [];
+
+    // Collect all constraints from selected capabilities
+    const allConstraints: { capability: string; rules: string[] }[] = [];
+    for (const cap of capabilities) {
+      const manifest = this.loader.getManifest(cap.name);
+      if (manifest?.constraints?.length) {
+        allConstraints.push({ capability: cap.name, rules: manifest.constraints });
+      }
+    }
+
+    // Inject constraints block FIRST — before any capability content
+    if (allConstraints.length > 0) {
+      sections.push('## ⚠️ CONSTRAINTS (MUST follow)');
+      sections.push('');
+      for (const { capability, rules } of allConstraints) {
+        for (const rule of rules) {
+          sections.push(`- **[${capability}]** ${rule}`);
+        }
+      }
+      sections.push('');
+    }
 
     sections.push('## Capability Context');
     sections.push('');
@@ -397,6 +436,30 @@ export class TaskResolver {
       case 'index': return 'index';
     }
   }
+}
+
+/**
+ * Check if a filename matches a file pattern.
+ * Supports: exact extension ('.stories.tsx'), glob-like ('*.test.*'), and substring matching.
+ */
+function fileMatchesPattern(filePath: string, pattern: string): boolean {
+  const fileName = filePath.split('/').pop() ?? filePath;
+
+  // Exact extension match (e.g., '.stories.tsx' matches 'Button.stories.tsx')
+  if (pattern.startsWith('.') && !pattern.includes('*')) {
+    return fileName.endsWith(pattern);
+  }
+
+  // Glob-like pattern: convert to regex
+  if (pattern.includes('*')) {
+    const regexStr = pattern
+      .replace(/\./g, '\\.')
+      .replace(/\*/g, '.*');
+    return new RegExp(regexStr).test(fileName);
+  }
+
+  // Substring match
+  return fileName.includes(pattern);
 }
 
 /**

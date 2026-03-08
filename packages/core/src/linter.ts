@@ -229,6 +229,42 @@ export function lintCapability(
     });
   }
 
+  // ── Constraints quality ──
+  if (manifest.constraints && manifest.constraints.length > 0) {
+    for (const constraint of manifest.constraints) {
+      if (constraint.length < 15) {
+        result.warnings.push({
+          level: 'warning',
+          code: 'CONSTRAINT_TOO_SHORT',
+          message: `Constraint "${constraint}" is very short — constraints should be specific and actionable`,
+        });
+      }
+
+      // Check if constraint uses imperative language (NEVER, ALWAYS, MUST, DO NOT)
+      const hasImperative = /\b(NEVER|ALWAYS|MUST|DO NOT|REQUIRED|FORBIDDEN)\b/i.test(constraint);
+      if (!hasImperative) {
+        result.info.push({
+          level: 'info',
+          code: 'CONSTRAINT_WEAK_LANGUAGE',
+          message: `Constraint "${constraint.slice(0, 60)}..." could benefit from imperative language (NEVER, ALWAYS, MUST, DO NOT) for stronger model adherence`,
+        });
+      }
+    }
+  }
+
+  // ── File patterns quality ──
+  if (manifest.file_patterns && manifest.file_patterns.length > 0) {
+    for (const pattern of manifest.file_patterns) {
+      if (!pattern.includes('.') && !pattern.includes('*')) {
+        result.warnings.push({
+          level: 'warning',
+          code: 'FILE_PATTERN_NO_EXTENSION',
+          message: `File pattern "${pattern}" has no extension or glob — may match too broadly`,
+        });
+      }
+    }
+  }
+
   // ── Provides tags ──
   if (!manifest.provides || manifest.provides.length === 0) {
     result.warnings.push({
