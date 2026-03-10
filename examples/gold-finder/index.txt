@@ -1,0 +1,1 @@
+gold-finder: Analyze meeting transcripts to spot AI and automation opportunities — structured reports for Share consulting engagements.

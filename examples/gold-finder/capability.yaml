@@ -1,0 +1,93 @@
+name: gold-finder
+type: capability
+version: 1.0.0
+description: "Analyze meeting transcripts to identify AI and automation opportunities that improve business performance, output, and profitability. Built for Share consulting engagements."
+
+provides:
+  - transcript-analysis
+  - opportunity-identification
+  - ai-automation-consulting
+
+requires:
+  tools:
+    - mcp: exec
+      methods: [run_command]
+      optional: true
+    - mcp: sessions_spawn
+      methods: [spawn]
+      optional: true
+  capabilities:
+    - name: engram-recall
+      resolution: summary
+      optional: true
+    - name: summarize
+      resolution: summary
+      optional: true
+  context: []
+
+budget:
+  index: 12
+  summary: 180
+  standard: 1500
+  deep: 3500
+
+activation:
+  triggers:
+    - type: pattern
+      match: "^/gold-finder"
+    - type: pattern
+      match: "(find (the )?gold|spot opportunities|analyze (this )?(meeting |call )?transcript)"
+    - type: pattern
+      match: "(ai opportunities|automation opportunities|where can ai help)"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  tools:
+    exec:
+      run_command: allow
+    sessions_spawn:
+      spawn: allow
+  data:
+    transcript_content: read-only
+
+behavioral:
+  core: |
+    When analyzing a meeting transcript for AI/automation gold:
+    1. Read the full transcript — do NOT skim or summarize prematurely
+    2. Identify the business domain, participants, and key themes
+    3. Mine for opportunities across all 6 categories (see standard.md)
+    4. For each opportunity: name it, explain the current pain, propose the AI/automation solution, estimate impact and effort
+    5. Score opportunities on a 2x2 (Impact vs Effort) and sort by ROI
+    6. Flag "quick wins" (high impact, low effort) prominently
+    7. Output a structured report suitable for client delivery
+    8. If the transcript mentions specific tools/platforms, factor those into recommendations
+    9. Be concrete — "use AI for X" is useless; "deploy an LLM-powered Y that does Z" is gold
+    10. Maintain consulting-grade language — professional but accessible
+  overlays: []
+
+state_schema:
+  version: 1
+  max_size_tokens: 300
+  fields:
+    - name: transcript_source
+      type: string
+    - name: business_domain
+      type: string
+    - name: opportunities_found
+      type: number
+    - name: quick_wins
+      type: number
+    - name: report_delivered
+      type: boolean
+
+verification:
+  checklist:
+    - "Read full transcript before analysis"
+    - "Identified business domain and context"
+    - "Found opportunities across multiple categories"
+    - "Each opportunity has: name, pain, solution, impact, effort"
+    - "Sorted by ROI with quick wins flagged"
+    - "Report is client-delivery ready"
+  completion_signal: report_delivered
