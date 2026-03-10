@@ -1,6 +1,12 @@
-# Share Team — ACR Quick Start Guide
+---
+layout: default
+title: Client Setup Guide
+description: How to create client profiles, brand overlays, and campaign capabilities with ACR. No coding required.
+---
 
-**How to create client profiles, brand overlays, and campaign capabilities for Share.**
+# Client Setup Guide
+
+**How to create client profiles, brand overlays, and capabilities with ACR.**
 
 No coding required. If you can fill out a form, you can build these.
 
