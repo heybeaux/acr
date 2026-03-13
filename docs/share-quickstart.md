@@ -16,9 +16,9 @@ No coding required. If you can fill out a form, you can build these.
 
 ```
 You build ONCE (generic):        You build PER CLIENT:
-├── email-copywriting            ├── intervarsity-brand (overlay)
-├── campaign-strategy            ├── ob-brand (overlay)
-├── red-team-review              ├── map-brand (overlay)
+├── email-copywriting            ├── acme-brand (overlay)
+├── campaign-strategy            ├── globex-brand (overlay)
+├── red-team-review              ├── initech-brand (overlay)
 ├── social-content               └── etc.
 └── visual-creative
 ```
@@ -36,7 +36,7 @@ This is the most common thing you'll do. Every new client gets one.
 
 ```
 clients/
-└── intervarsity/
+└── acme-nonprofit/
     ├── capability.yaml    ← the manifest (copy the template below)
     ├── index.txt          ← one line about this client
     ├── summary.md         ← key facts at a glance
@@ -46,7 +46,7 @@ clients/
 ### index.txt (one line — that's it)
 
 ```
-intervarsity: InterVarsity Christian Fellowship — campus ministry, young donor base, warm/invitational voice.
+acme-nonprofit: Acme Foundation — youth education nonprofit, warm/invitational voice.
 ```
 
 ### summary.md (the cheat sheet)
@@ -54,16 +54,16 @@ intervarsity: InterVarsity Christian Fellowship — campus ministry, young donor
 Write this like you're briefing a new team member in 60 seconds:
 
 ```markdown
-# InterVarsity — Quick Reference
+# Acme Foundation — Quick Reference
 
-- **Full Name:** InterVarsity Christian Fellowship
-- **Sector:** Higher education / campus ministry
-- **Audience:** College students, young alumni, parents
+- **Full Name:** Acme Foundation
+- **Sector:** Youth education / community development
+- **Audience:** Parents, educators, community donors
 - **Voice:** Warm, invitational, community-focused
-- **Don't:** Guilt-based appeals, denominational favoritism
-- **Do:** Say "partner" not "donor", emphasize belonging
-- **Current campaigns:** Easter recurring gift drive
-- **Key contact:** Dabney (cultivation content)
+- **Don't:** Guilt-based appeals, political messaging
+- **Do:** Say "partner" not "donor", emphasize impact
+- **Current campaigns:** Spring enrollment drive
+- **Key contact:** Jamie (marketing lead)
 ```
 
 ### standard.md (the full brief)
@@ -71,10 +71,10 @@ Write this like you're briefing a new team member in 60 seconds:
 This is where you put everything the AI needs. Write it like a brand guide meets an account brief:
 
 ```markdown
-# InterVarsity — Full Client Profile
+# Acme Foundation — Full Client Profile
 
 ## Organization
-InterVarsity Christian Fellowship is a campus ministry...
+Acme Foundation is a youth education nonprofit...
 
 ## Brand Voice
 - Tone: [describe it like you'd tell a new copywriter]
@@ -82,16 +82,16 @@ InterVarsity Christian Fellowship is a campus ministry...
 - Examples of bad copy: [paste things that missed the mark]
 
 ## Audience Segments
-- Segment 1: College students (18-22)
+- Segment 1: Parents (30-50)
   - What motivates them: [...]
   - What turns them off: [...]
-- Segment 2: Young alumni (23-30)
+- Segment 2: Educators
   - ...
 
 ## Red Lines (things to NEVER do)
 - Never use guilt-based fundraising language
-- Never take sides on denominational issues
-- Never assume the reader is already a Christian
+- Never take political sides
+- Never make claims about outcomes without data
 
 ## Past Campaign Performance
 - Spring 2025 email series: [what worked, what didn't]
@@ -99,25 +99,25 @@ InterVarsity Christian Fellowship is a campus ministry...
 
 ## Technical Details
 - Email platform: [whatever they use]
-- Donation platform: [WeGive, etc.]
-- Tracking: [any specific SOL codes, UTM conventions]
+- Donation platform: [Stripe, etc.]
+- Tracking: [any specific UTM conventions]
 
 ## Key People
-- Angela: [role, preferences, communication style]
-- Dabney: [role, what they care about]
+- Jamie: [role, preferences, communication style]
+- Alex: [role, what they care about]
 ```
 
 ### capability.yaml (copy this template, fill in the blanks)
 
 ```yaml
-name: intervarsity-brand
+name: acme-brand
 type: capability
 version: 1.0.0
-description: "InterVarsity Christian Fellowship — brand voice, audience, campaign history, and org-specific rules."
+description: "Acme Foundation — brand voice, audience, campaign history, and org-specific rules."
 
 provides:
   - client-profile
-  - intervarsity
+  - acme-nonprofit
 
 requires:
   tools: []
@@ -132,7 +132,7 @@ budget:
 activation:
   triggers:
     - type: pattern
-      match: "(?i)(intervarsity|inter.varsity|\\bIV\\b)"
+      match: "(?i)(acme|acme.foundation)"
   trigger_logic: OR
   co_activates: []
   conflicts: []
@@ -143,12 +143,12 @@ permissions:
 
 behavioral:
   core: |
-    When working on InterVarsity content:
+    When working on Acme Foundation content:
     - Use warm, invitational tone
     - Say "partner" not "donor"
     - Never use guilt-based appeals
-    - Stay denominationally neutral
-    - Target audience skews young — mobile-first
+    - Stay politically neutral
+    - Emphasize measurable impact
   overlays: []
 
 state_schema:
@@ -181,16 +181,15 @@ You can either add a red team section to the client's `standard.md`, or create a
 ```markdown
 ## Red Team Rules (Client-Specific)
 
-When reviewing content for InterVarsity, flag:
+When reviewing content for Acme Foundation, flag:
 - [ ] Any guilt-based language ("you must," "how can you ignore")
-- [ ] Denominational bias (Catholic vs Protestant vs Orthodox)
-- [ ] Assumptions that readers are already Christian
-- [ ] Language that commodifies student experiences
-- [ ] Urgency that feels manufactured (they're a relationship org, not disaster relief)
-- [ ] Anything that wouldn't feel natural in a campus coffee shop conversation
+- [ ] Political messaging or partisan language
+- [ ] Unverified outcome claims
+- [ ] Urgency that feels manufactured
+- [ ] Anything that wouldn't feel natural in a parent-teacher conversation
 ```
 
-The generic red team capability will pick these up automatically when the InterVarsity overlay is mounted.
+The generic red team capability will pick these up automatically when the client overlay is mounted.
 
 ---
 
@@ -199,8 +198,7 @@ The generic red team capability will pick these up automatically when the InterV
 After creating a client overlay, check it:
 
 ```bash
-cd acr
-acr validate clients/intervarsity/
+acr validate clients/acme-nonprofit/
 ```
 
 You want to see: `✅ Valid`
@@ -219,7 +217,7 @@ If something's wrong, it'll tell you exactly what to fix.
 | Things to NEVER do | `standard.md` → Red Lines section |
 | Things the red team should catch | `standard.md` → Red Team Rules section |
 | Key people and their preferences | `standard.md` → Key People section |
-| Tracking codes / SOL codes | `standard.md` → Technical Details section |
+| Tracking codes / UTM conventions | `standard.md` → Technical Details section |
 | "We learned X from last campaign" | `standard.md` → update Past Campaign Performance |
 | Quick client context for the team | `summary.md` |
 
@@ -240,7 +238,7 @@ The AI picks up changes immediately on the next run. No deployment, no code, jus
 
 ## Creating a New Generic Capability
 
-This is less common — Beaux will usually handle these. But if you want to:
+Less common, but straightforward:
 
 1. **Create the folder** with the four files (capability.yaml, index.txt, summary.md, standard.md)
 2. **Write the standard.md** as if you're training a really smart new hire — tell them exactly how to do the task
@@ -255,7 +253,7 @@ The key question for standard.md: **"If I hired a smart person and handed them j
 
 | Mistake | Fix |
 |---------|-----|
-| Writing vague brand voice ("be professional") | Be specific: "Write like you're texting a friend who volunteers at church — casual but sincere" |
+| Writing vague brand voice ("be professional") | Be specific: "Write like you're texting a friend who cares about this cause — casual but sincere" |
 | Forgetting to include real examples | Paste actual good/bad copy samples. AI learns from examples better than rules. |
 | Making standard.md too long | Keep it under 1,500 tokens (~3 pages). If you need more, use deep.md |
 | Not updating after campaigns | Set a reminder: after every campaign wraps, spend 10 minutes updating the profile |
@@ -266,6 +264,6 @@ The key question for standard.md: **"If I hired a smart person and handed them j
 ## Need Help?
 
 - **"I don't know what to put in a section"** → Leave it blank with a TODO. Something is better than nothing.
-- **"How do I check token count?"** → Run `acr budget clients/intervarsity/`
-- **"I want to test it before going live"** → Ask Beaux to run a test pipeline with your overlay.
+- **"How do I check token count?"** → Run `acr budget clients/acme-nonprofit/`
+- **"I want to test it before going live"** → Run a test pipeline with your overlay.
 - **"The YAML syntax is confusing"** → Copy an existing client's capability.yaml and just change the names and descriptions. Don't write YAML from scratch.
