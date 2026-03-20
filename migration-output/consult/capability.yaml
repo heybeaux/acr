@@ -23,6 +23,18 @@ activation:
   triggers:
     - type: pattern
       match: "consult"
+    - type: pattern
+      match: "expert panel"
+    - type: pattern
+      match: "expert opinions"
+    - type: pattern
+      match: "multiple models"
+    - type: pattern
+      match: "multiple AI"
+    - type: pattern
+      match: "get perspectives"
+    - type: pattern
+      match: "second opinion"
   trigger_logic: OR
   co_activates: []
   conflicts: []

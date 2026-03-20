@@ -23,6 +23,20 @@ activation:
   triggers:
     - type: pattern
       match: "cron"
+    - type: pattern
+      match: "schedule"
+    - type: pattern
+      match: "reminder"
+    - type: pattern
+      match: "recurring"
+    - type: pattern
+      match: "every day"
+    - type: pattern
+      match: "every week"
+    - type: pattern
+      match: "daily"
+    - type: pattern
+      match: "weekly"
   trigger_logic: OR
   co_activates: []
   conflicts: []

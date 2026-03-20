@@ -1,0 +1,12 @@
+experiment	pass_rate	recall	precision	primary_rate	avg_tokens	status	description
+0	100.0%	100.0%	32.8%	100.0%	3667	baseline	default config
+1	100.0%	100.0%	32.8%	100.0%	3667	discard	Lower semantic threshold: 0.3 → 0.2
+2	100.0%	100.0%	32.8%	100.0%	3667	discard	Raise semantic threshold: 0.3 → 0.4
+3	100.0%	100.0%	32.8%	100.0%	3667	discard	Increase max capabilities: 8 → 12
+4	100.0%	100.0%	36.7%	100.0%	3364	discard	Decrease max capabilities: 8 → 5
+5	100.0%	100.0%	32.8%	100.0%	3667	discard	Increase budget: 15000 → 25000
+6	100.0%	100.0%	32.8%	100.0%	3578	discard	Decrease budget: 15000 → 8000
+7	100.0%	100.0%	32.8%	100.0%	3667	discard	Lower threshold + more caps
+8	100.0%	100.0%	32.8%	100.0%	3667	discard	Higher budget + more caps
+9	100.0%	100.0%	36.7%	100.0%	3275	discard	Tight: low budget, few caps, high threshold
+10	100.0%	100.0%	32.8%	100.0%	3667	discard	Wide: high budget, many caps, low threshold
