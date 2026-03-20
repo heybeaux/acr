@@ -45,23 +45,23 @@ The workbench has a size limit. If someone asks for woodworking, plumbing, AND e
 ### The Numbers
 
 ```
-Without ACR:  30 tools × 900 tokens each = 26,498 tokens (20.7% of window)
-With ACR:     30 tools at index level    =    473 tokens  (0.4% of window)
-              3 active tools at full     =  2,287 tokens  (1.8% of window)
+Without ACR:  30 tools × 1,256 avg tokens = 37,682 tokens (29.4% of window)
+With ACR:     30 tools at index level     =    597 tokens  (0.5% of window)
+              3 active tools at standard  = 12,384 tokens  (9.7% of window)
 ```
 
-**98% token reduction at cold start. 91% reduction with active tools.** Not theoretical — measured against 30 real production capabilities.
+**98% token reduction at cold start. 67% reduction with active tools loaded.** Not theoretical — measured against 30 real production capabilities. Task Resolver typically loads 1-2 capabilities at standard + 1-2 at summary, averaging just **1,626 tokens** per task resolution (96% reduction).
 
 ### How It Works (Technical)
 
 Every capability has four resolution levels:
 
-| Level | Size | When Used |
-|-------|------|-----------|
-| **Index** | ~15 tokens | "I have this tool" — cold start awareness |
-| **Summary** | ~100 tokens | "Here's what it does" — evaluation |
-| **Standard** | ~500 tokens | "Here's how to use it" — active use |
-| **Deep** | ~2000 tokens | "Here's everything about it" — primary focus |
+| Level | Avg Size | When Used |
+|-------|----------|-----------|
+| **Index** | ~20 tokens | "I have this tool" — cold start awareness |
+| **Summary** | ~95 tokens | "Here's what it does" — evaluation |
+| **Standard** | ~1,250 tokens | "Here's how to use it" — active use |
+| **Deep** | ~2,500+ tokens | "Here's everything about it" — primary focus |
 
 ACR dynamically promotes and demotes capabilities based on what the agent actually needs:
 
@@ -111,7 +111,11 @@ const loader = new LODLoader();
 loader.registerAll(capabilityDirs);
 
 // Resolve for a task (Factory-style worker spawning)
-const resolver = new TaskResolver(loader);
+const resolver = new TaskResolver(loader, {
+  maxCapabilities: 4,
+  maxBudget: 5000,
+  minScore: 35,
+});
 const { context, tokenCost } = resolver.resolve(
   'Implement NestJS auth service with Prisma ORM'
 );
@@ -278,9 +282,17 @@ budget:
 activation:
   triggers:
     - type: pattern
-      condition: "(?i)\\b(nestjs|nest\\.js|nest service)\\b"
-    - type: semantic
-      condition: "backend API development with Node.js"
+      match: "nestjs"
+    - type: pattern
+      match: "nest.js"
+    - type: pattern
+      match: "nest service"
+    - type: pattern
+      match: "nest guard"
+    - type: pattern
+      match: "nest interceptor"
+  # Use multiple specific triggers for reliable matching.
+  # Autoresearch showed: broader triggers → higher resolver recall.
 
 priority: medium
 
@@ -314,17 +326,17 @@ acr search <query> <dir>     # Search capabilities
 | 0. Validation | ✅ Complete | Format validated against 30 production skills |
 | 1. Core Runtime | ✅ Complete | Schema, validator, resolver, budget calculator, CLI |
 | 2. Dynamic Runtime | ✅ Complete | Context manager, triggers, state, proxy, policies |
-| 3. Framework Adapter | ✅ Complete | OpenClaw adapter, 94-95% token savings measured |
+| 3. Framework Adapter | ✅ Complete | OpenClaw adapter, 96-98% token savings measured |
 | 4a. Intelligence | ✅ Complete | Semantic triggers, priority eviction, tiktoken |
 | 4b. Production | ✅ Complete | File state store, observability, linter |
 | 4c. Ecosystem | ✅ Complete | Registry, search, authoring guide |
 | 5. Multi-Agent | ✅ Complete | Spawn resolver, capability inheritance, MCP positioning |
 
-**105 tests passing** across 7 test suites. **~5,000 lines** of TypeScript across 34 source files.
+**105 tests passing** across 7 test suites. **~9,000 lines** of TypeScript across 35 source files, plus Python implementation (6 files).
 
 ## Spec
 
-The formal specification is at [`specs/agent-capability-runtime.md`](./specs/agent-capability-runtime.md) (v1.0-rc1, 784 lines).
+The formal specification is at [`specs/agent-capability-runtime.md`](./specs/agent-capability-runtime.md) (v1.0-rc1, 857 lines).
 
 It covers:
 - Layer model (Primitives → Capabilities → Capability Sets → Roles)
