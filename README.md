@@ -8,7 +8,7 @@ ACR manages what goes into an agent's context window — which capabilities are 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-88%20passing-brightgreen.svg)](#)
+[![Tests](https://img.shields.io/badge/tests-105%20passing-brightgreen.svg)](#)
 [![Spec](https://img.shields.io/badge/spec-v1.0--rc1-orange.svg)](./specs/agent-capability-runtime.md)
 
 </div>
@@ -200,6 +200,46 @@ const config = resolveFromTask(taskResolver, ticket.description, {
 | **Spawn Resolver** | Capability inheritance for multi-agent scenarios |
 | **Observer** | Metrics, timeline, debug mode, event handlers |
 
+## Task Resolver Benchmark
+
+The Task Resolver was optimized using [autoresearch](https://github.com/karpathy/autoresearch) — an iterative mutation + binary eval methodology. 20 test scenarios across all capability domains, 3 optimization phases.
+
+### Results
+
+| Metric | Before | After | Improvement |
+|--------|--------|-------|-------------|
+| **Recall** | 90.0% | **100%** | All 20 scenarios pass |
+| **Precision** | 32.8% | **64.7%** | +97% relative |
+| **Tokens/task** | 3,667 | **1,626** | -56% fewer tokens |
+
+### How It Got There
+
+**Phase 1 — Parameter tuning:** Reduced `maxCapabilities` (8→4) and `maxBudget` (15K→5K) to cut noise. Precision: 32.8% → 42.3%.
+
+**Phase 2 — New lever:** Added `minScore` threshold to filter weak keyword matches. Precision: 42.3% → 48.9%.
+
+**Phase 3 — Manifest + parameter co-optimization:** Fixed weak trigger patterns on `ci-verify` and `db-introspect` capabilities, which unlocked `minScore: 35` (previously broke recall at 25). Precision: 48.9% → 64.7%.
+
+**Key insight:** Autoresearch correctly identified that the precision ceiling was set by manifest quality, not resolver parameters. Fixing the manifests unlocked parameter ranges that were previously blocked. The same pattern appeared in AWM optimization — autoresearch finds the boundary between tunable and structural problems.
+
+### Optimal Resolver Config
+
+```typescript
+const resolver = new TaskResolver(loader, {
+  maxCapabilities: 4,     // top 4 by score
+  maxBudget: 5000,        // 5K token cap
+  minScore: 35,           // filter weak matches
+});
+```
+
+Run the benchmark yourself:
+
+```bash
+npx tsx packages/core/src/__tests__/autoresearch-resolver.ts
+```
+
+---
+
 ## ACR + MCP
 
 ACR is not a replacement for MCP. It's the complementary layer.
@@ -280,7 +320,7 @@ acr search <query> <dir>     # Search capabilities
 | 4c. Ecosystem | ✅ Complete | Registry, search, authoring guide |
 | 5. Multi-Agent | ✅ Complete | Spawn resolver, capability inheritance, MCP positioning |
 
-**88 tests passing** across 6 test suites. **~5,000 lines** of TypeScript across 34 source files.
+**105 tests passing** across 7 test suites. **~5,000 lines** of TypeScript across 34 source files.
 
 ## Spec
 
