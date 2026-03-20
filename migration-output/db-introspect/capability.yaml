@@ -23,6 +23,18 @@ activation:
   triggers:
     - type: pattern
       match: "db[ -]introspect"
+    - type: pattern
+      match: "database.*schema"
+    - type: pattern
+      match: "database.*analyz"
+    - type: pattern
+      match: "schema.*analyz"
+    - type: pattern
+      match: "generate.*erd"
+    - type: pattern
+      match: "table.*relationship"
+    - type: pattern
+      match: "introspect"
   trigger_logic: OR
   co_activates: []
   conflicts: []

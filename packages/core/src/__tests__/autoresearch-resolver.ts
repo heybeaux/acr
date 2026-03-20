@@ -317,28 +317,29 @@ async function main() {
   fs.appendFileSync(changelogPath,
     `## Experiment 0 — baseline\n**Pass rate:** ${(baseline.passRate*100).toFixed(1)}%\n**Recall:** ${(baseline.recallRate*100).toFixed(1)}%\n**Precision:** ${(baseline.precisionRate*100).toFixed(1)}%\n**Primary:** ${(baseline.primaryRate*100).toFixed(1)}%\n**Avg tokens:** ${baseline.avgTokenCost.toFixed(0)}\n**Failures:** ${baseline.failures.map(f => `#${f.id} ${f.description}`).join(', ') || 'none'}\n\n`);
 
-  // Experiment configs — focus on precision without losing recall
+  // Experiment configs — precision phase 2: minScore threshold
+  // Best from phase 1: maxCapabilities=4, maxBudget=5000 (42.3% precision)
+  // Now adding minScore to filter weak matches before they count
+  // Phase 3: with improved ci-verify + db-introspect triggers,
+  // can we push minScore higher now?
+  const baseConfig = { maxCapabilities: 4, maxBudget: 5000, minScore: 15 };
   const experiments: { description: string; config: any }[] = [
-    // Reduce noise by limiting capabilities
-    { description: 'Max 4 capabilities', config: { maxCapabilities: 4 } },
-    { description: 'Max 3 capabilities', config: { maxCapabilities: 3 } },
-    { description: 'Max 2 capabilities', config: { maxCapabilities: 2 } },
-    // Tighter budget forces only highest-scoring capabilities through
-    { description: 'Budget 5000 (tight)', config: { maxBudget: 5000 } },
-    { description: 'Budget 3000 (very tight)', config: { maxBudget: 3000 } },
-    { description: 'Budget 2000 (minimal)', config: { maxBudget: 2000 } },
-    // Combined: fewer caps + tighter budget
-    { description: 'Max 3 + budget 5000', config: { maxCapabilities: 3, maxBudget: 5000 } },
-    { description: 'Max 4 + budget 5000', config: { maxCapabilities: 4, maxBudget: 5000 } },
-    { description: 'Max 3 + budget 3000', config: { maxCapabilities: 3, maxBudget: 3000 } },
-    { description: 'Max 4 + budget 8000', config: { maxCapabilities: 4, maxBudget: 8000 } },
-    // Semantic threshold changes
-    { description: 'Semantic threshold 0.4', config: { semanticThreshold: 0.4 } },
-    { description: 'Semantic threshold 0.5', config: { semanticThreshold: 0.5 } },
-    // Best precision combo attempts
-    { description: 'Max 4 + budget 5000 + threshold 0.4', config: { maxCapabilities: 4, maxBudget: 5000, semanticThreshold: 0.4 } },
-    { description: 'Max 3 + budget 5000 + threshold 0.4', config: { maxCapabilities: 3, maxBudget: 5000, semanticThreshold: 0.4 } },
-    { description: 'Max 5 + budget 8000', config: { maxCapabilities: 5, maxBudget: 8000 } },
+    // Push minScore now that ci-verify/db-introspect have better triggers
+    { description: 'minScore 20 (post trigger fix)', config: { ...baseConfig, minScore: 20 } },
+    { description: 'minScore 25 (post trigger fix)', config: { ...baseConfig, minScore: 25 } },
+    { description: 'minScore 30 (post trigger fix)', config: { ...baseConfig, minScore: 30 } },
+    { description: 'minScore 35 (post trigger fix)', config: { ...baseConfig, minScore: 35 } },
+    // Relax caps now that noise is filtered by minScore
+    { description: 'maxCaps 5 + minScore 25', config: { maxCapabilities: 5, maxBudget: 8000, minScore: 25 } },
+    { description: 'maxCaps 6 + minScore 25', config: { maxCapabilities: 6, maxBudget: 8000, minScore: 25 } },
+    { description: 'maxCaps 6 + minScore 30', config: { maxCapabilities: 6, maxBudget: 10000, minScore: 30 } },
+    { description: 'maxCaps 8 + minScore 30', config: { maxCapabilities: 8, maxBudget: 15000, minScore: 30 } },
+    { description: 'maxCaps 8 + minScore 35', config: { maxCapabilities: 8, maxBudget: 15000, minScore: 35 } },
+    // Fine-tune around best
+    { description: 'minScore 22', config: { ...baseConfig, minScore: 22 } },
+    { description: 'minScore 28', config: { ...baseConfig, minScore: 28 } },
+    { description: 'maxCaps 3 + minScore 20', config: { maxCapabilities: 3, maxBudget: 4000, minScore: 20 } },
+    { description: 'maxCaps 4 + minScore 20 + budget 8000', config: { maxCapabilities: 4, maxBudget: 8000, minScore: 20 } },
   ];
 
   let bestPassRate = baseline.passRate;

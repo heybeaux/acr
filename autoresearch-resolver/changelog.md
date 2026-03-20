@@ -10,91 +10,79 @@
 
 ## Experiment 1 — keep
 **Pass rate:** 100.0%
-**Change:** Max 4 capabilities
-**Recall:** 100.0% | Precision: 39.3% | Primary: 100.0%
-**Avg tokens:** 3011
+**Change:** minScore 20 (post trigger fix)
+**Recall:** 100.0% | Precision: 48.9% | Primary: 100.0%
+**Avg tokens:** 2145
 
-## Experiment 2 — discard
-**Pass rate:** 95.0%
-**Change:** Max 3 capabilities
-**Recall:** 95.5% | Precision: 43.8% | Primary: 95.0%
-**Avg tokens:** 2692
+## Experiment 2 — keep
+**Pass rate:** 100.0%
+**Change:** minScore 25 (post trigger fix)
+**Recall:** 100.0% | Precision: 50.0% | Primary: 100.0%
+**Avg tokens:** 2061
 
 ## Experiment 3 — discard
-**Pass rate:** 95.0%
-**Change:** Max 2 capabilities
-**Recall:** 95.5% | Precision: 58.3% | Primary: 95.0%
-**Avg tokens:** 2087
-
-## Experiment 4 — discard
 **Pass rate:** 100.0%
-**Change:** Budget 5000 (tight)
-**Recall:** 100.0% | Precision: 34.9% | Primary: 100.0%
-**Avg tokens:** 2761
+**Change:** minScore 30 (post trigger fix)
+**Recall:** 100.0% | Precision: 50.0% | Primary: 100.0%
+**Avg tokens:** 2061
+
+## Experiment 4 — keep
+**Pass rate:** 100.0%
+**Change:** minScore 35 (post trigger fix)
+**Recall:** 100.0% | Precision: 64.7% | Primary: 100.0%
+**Avg tokens:** 1626
 
 ## Experiment 5 — discard
-**Pass rate:** 95.0%
-**Change:** Budget 3000 (very tight)
-**Recall:** 95.5% | Precision: 34.4% | Primary: 95.0%
-**Avg tokens:** 2252
+**Pass rate:** 100.0%
+**Change:** maxCaps 5 + minScore 25
+**Recall:** 100.0% | Precision: 44.9% | Primary: 100.0%
+**Avg tokens:** 2794
 
 ## Experiment 6 — discard
-**Pass rate:** 95.0%
-**Change:** Budget 2000 (minimal)
-**Recall:** 95.5% | Precision: 35.6% | Primary: 90.0%
-**Avg tokens:** 1744
+**Pass rate:** 100.0%
+**Change:** maxCaps 6 + minScore 25
+**Recall:** 100.0% | Precision: 44.0% | Primary: 100.0%
+**Avg tokens:** 2827
 
 ## Experiment 7 — discard
-**Pass rate:** 95.0%
-**Change:** Max 3 + budget 5000
-**Recall:** 95.5% | Precision: 46.7% | Primary: 95.0%
-**Avg tokens:** 2158
-
-## Experiment 8 — keep
 **Pass rate:** 100.0%
-**Change:** Max 4 + budget 5000
-**Recall:** 100.0% | Precision: 42.3% | Primary: 100.0%
-**Avg tokens:** 2381
+**Change:** maxCaps 6 + minScore 30
+**Recall:** 100.0% | Precision: 44.0% | Primary: 100.0%
+**Avg tokens:** 2916
+
+## Experiment 8 — discard
+**Pass rate:** 100.0%
+**Change:** maxCaps 8 + minScore 30
+**Recall:** 100.0% | Precision: 43.1% | Primary: 100.0%
+**Avg tokens:** 2940
 
 ## Experiment 9 — discard
-**Pass rate:** 90.0%
-**Change:** Max 3 + budget 3000
-**Recall:** 90.9% | Precision: 43.5% | Primary: 90.0%
-**Avg tokens:** 2018
+**Pass rate:** 100.0%
+**Change:** maxCaps 8 + minScore 35
+**Recall:** 100.0% | Precision: 57.9% | Primary: 100.0%
+**Avg tokens:** 2167
 
 ## Experiment 10 — discard
 **Pass rate:** 100.0%
-**Change:** Max 4 + budget 8000
-**Recall:** 100.0% | Precision: 39.3% | Primary: 100.0%
-**Avg tokens:** 2922
+**Change:** minScore 22
+**Recall:** 100.0% | Precision: 48.9% | Primary: 100.0%
+**Avg tokens:** 2145
 
 ## Experiment 11 — discard
 **Pass rate:** 100.0%
-**Change:** Semantic threshold 0.4
-**Recall:** 100.0% | Precision: 32.8% | Primary: 100.0%
-**Avg tokens:** 3667
+**Change:** minScore 28
+**Recall:** 100.0% | Precision: 50.0% | Primary: 100.0%
+**Avg tokens:** 2061
 
 ## Experiment 12 — discard
 **Pass rate:** 100.0%
-**Change:** Semantic threshold 0.5
-**Recall:** 100.0% | Precision: 32.8% | Primary: 100.0%
-**Avg tokens:** 3667
+**Change:** maxCaps 3 + minScore 20
+**Recall:** 100.0% | Precision: 53.7% | Primary: 100.0%
+**Avg tokens:** 2018
 
 ## Experiment 13 — discard
 **Pass rate:** 100.0%
-**Change:** Max 4 + budget 5000 + threshold 0.4
-**Recall:** 100.0% | Precision: 42.3% | Primary: 100.0%
-**Avg tokens:** 2381
-
-## Experiment 14 — discard
-**Pass rate:** 95.0%
-**Change:** Max 3 + budget 5000 + threshold 0.4
-**Recall:** 95.5% | Precision: 46.7% | Primary: 95.0%
-**Avg tokens:** 2158
-
-## Experiment 15 — discard
-**Pass rate:** 100.0%
-**Change:** Max 5 + budget 8000
-**Recall:** 100.0% | Precision: 36.7% | Primary: 100.0%
-**Avg tokens:** 3275
+**Change:** maxCaps 4 + minScore 20 + budget 8000
+**Recall:** 100.0% | Precision: 44.9% | Primary: 100.0%
+**Avg tokens:** 2685
 

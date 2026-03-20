@@ -23,6 +23,18 @@ activation:
   triggers:
     - type: pattern
       match: "ci[ -]verify"
+    - type: pattern
+      match: "verify.*build"
+    - type: pattern
+      match: "verify.*deploy"
+    - type: pattern
+      match: "ci.?cd.*verif"
+    - type: pattern
+      match: "pipeline.*verif"
+    - type: pattern
+      match: "build.*pass"
+    - type: pattern
+      match: "check.*ci"
   trigger_logic: OR
   co_activates: []
   conflicts: []

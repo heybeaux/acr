@@ -73,6 +73,9 @@ export interface TaskResolverConfig {
   /** Maximum capabilities to include (default: 8) */
   maxCapabilities?: number;
 
+  /** Minimum score to include a capability (default: 0 — include any match) */
+  minScore?: number;
+
   /** Output file paths for file-pattern-aware priority boosting */
   outputFiles?: string[];
 }
@@ -107,6 +110,7 @@ export class TaskResolver {
       primaryResolution: config.primaryResolution ?? 'deep',
       semanticThreshold: config.semanticThreshold ?? 0.3,
       maxCapabilities: config.maxCapabilities ?? 8,
+      minScore: config.minScore ?? 0,
       outputFiles: config.outputFiles ?? [],
     };
 
@@ -355,8 +359,8 @@ export class TaskResolver {
         }
       }
 
-      // Only include capabilities with meaningful scores
-      if (score > 0) {
+      // Only include capabilities above minimum score threshold
+      if (score > this.config.minScore) {
         results.push({ manifest, score, reasons, isPrimary });
       }
     }
