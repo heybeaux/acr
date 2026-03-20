@@ -1,12 +1,17 @@
 experiment	pass_rate	recall	precision	primary_rate	avg_tokens	status	description
 0	100.0%	100.0%	32.8%	100.0%	3667	baseline	default config
-1	100.0%	100.0%	32.8%	100.0%	3667	discard	Lower semantic threshold: 0.3 → 0.2
-2	100.0%	100.0%	32.8%	100.0%	3667	discard	Raise semantic threshold: 0.3 → 0.4
-3	100.0%	100.0%	32.8%	100.0%	3667	discard	Increase max capabilities: 8 → 12
-4	100.0%	100.0%	36.7%	100.0%	3364	discard	Decrease max capabilities: 8 → 5
-5	100.0%	100.0%	32.8%	100.0%	3667	discard	Increase budget: 15000 → 25000
-6	100.0%	100.0%	32.8%	100.0%	3578	discard	Decrease budget: 15000 → 8000
-7	100.0%	100.0%	32.8%	100.0%	3667	discard	Lower threshold + more caps
-8	100.0%	100.0%	32.8%	100.0%	3667	discard	Higher budget + more caps
-9	100.0%	100.0%	36.7%	100.0%	3275	discard	Tight: low budget, few caps, high threshold
-10	100.0%	100.0%	32.8%	100.0%	3667	discard	Wide: high budget, many caps, low threshold
+1	100.0%	100.0%	39.3%	100.0%	3011	keep	Max 4 capabilities
+2	95.0%	95.5%	43.8%	95.0%	2692	discard	Max 3 capabilities
+3	95.0%	95.5%	58.3%	95.0%	2087	discard	Max 2 capabilities
+4	100.0%	100.0%	34.9%	100.0%	2761	discard	Budget 5000 (tight)
+5	95.0%	95.5%	34.4%	95.0%	2252	discard	Budget 3000 (very tight)
+6	95.0%	95.5%	35.6%	90.0%	1744	discard	Budget 2000 (minimal)
+7	95.0%	95.5%	46.7%	95.0%	2158	discard	Max 3 + budget 5000
+8	100.0%	100.0%	42.3%	100.0%	2381	keep	Max 4 + budget 5000
+9	90.0%	90.9%	43.5%	90.0%	2018	discard	Max 3 + budget 3000
+10	100.0%	100.0%	39.3%	100.0%	2922	discard	Max 4 + budget 8000
+11	100.0%	100.0%	32.8%	100.0%	3667	discard	Semantic threshold 0.4
+12	100.0%	100.0%	32.8%	100.0%	3667	discard	Semantic threshold 0.5
+13	100.0%	100.0%	42.3%	100.0%	2381	discard	Max 4 + budget 5000 + threshold 0.4
+14	95.0%	95.5%	46.7%	95.0%	2158	discard	Max 3 + budget 5000 + threshold 0.4
+15	100.0%	100.0%	36.7%	100.0%	3275	discard	Max 5 + budget 8000

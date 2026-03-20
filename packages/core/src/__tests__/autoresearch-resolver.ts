@@ -317,22 +317,34 @@ async function main() {
   fs.appendFileSync(changelogPath,
     `## Experiment 0 — baseline\n**Pass rate:** ${(baseline.passRate*100).toFixed(1)}%\n**Recall:** ${(baseline.recallRate*100).toFixed(1)}%\n**Precision:** ${(baseline.precisionRate*100).toFixed(1)}%\n**Primary:** ${(baseline.primaryRate*100).toFixed(1)}%\n**Avg tokens:** ${baseline.avgTokenCost.toFixed(0)}\n**Failures:** ${baseline.failures.map(f => `#${f.id} ${f.description}`).join(', ') || 'none'}\n\n`);
 
-  // Experiment configs
+  // Experiment configs — focus on precision without losing recall
   const experiments: { description: string; config: any }[] = [
-    { description: 'Lower semantic threshold: 0.3 → 0.2', config: { semanticThreshold: 0.2 } },
-    { description: 'Raise semantic threshold: 0.3 → 0.4', config: { semanticThreshold: 0.4 } },
-    { description: 'Increase max capabilities: 8 → 12', config: { maxCapabilities: 12 } },
-    { description: 'Decrease max capabilities: 8 → 5', config: { maxCapabilities: 5 } },
-    { description: 'Increase budget: 15000 → 25000', config: { maxBudget: 25000 } },
-    { description: 'Decrease budget: 15000 → 8000', config: { maxBudget: 8000 } },
-    { description: 'Lower threshold + more caps', config: { semanticThreshold: 0.2, maxCapabilities: 12 } },
-    { description: 'Higher budget + more caps', config: { maxBudget: 25000, maxCapabilities: 12 } },
-    { description: 'Tight: low budget, few caps, high threshold', config: { maxBudget: 8000, maxCapabilities: 5, semanticThreshold: 0.4 } },
-    { description: 'Wide: high budget, many caps, low threshold', config: { maxBudget: 30000, maxCapabilities: 15, semanticThreshold: 0.15 } },
+    // Reduce noise by limiting capabilities
+    { description: 'Max 4 capabilities', config: { maxCapabilities: 4 } },
+    { description: 'Max 3 capabilities', config: { maxCapabilities: 3 } },
+    { description: 'Max 2 capabilities', config: { maxCapabilities: 2 } },
+    // Tighter budget forces only highest-scoring capabilities through
+    { description: 'Budget 5000 (tight)', config: { maxBudget: 5000 } },
+    { description: 'Budget 3000 (very tight)', config: { maxBudget: 3000 } },
+    { description: 'Budget 2000 (minimal)', config: { maxBudget: 2000 } },
+    // Combined: fewer caps + tighter budget
+    { description: 'Max 3 + budget 5000', config: { maxCapabilities: 3, maxBudget: 5000 } },
+    { description: 'Max 4 + budget 5000', config: { maxCapabilities: 4, maxBudget: 5000 } },
+    { description: 'Max 3 + budget 3000', config: { maxCapabilities: 3, maxBudget: 3000 } },
+    { description: 'Max 4 + budget 8000', config: { maxCapabilities: 4, maxBudget: 8000 } },
+    // Semantic threshold changes
+    { description: 'Semantic threshold 0.4', config: { semanticThreshold: 0.4 } },
+    { description: 'Semantic threshold 0.5', config: { semanticThreshold: 0.5 } },
+    // Best precision combo attempts
+    { description: 'Max 4 + budget 5000 + threshold 0.4', config: { maxCapabilities: 4, maxBudget: 5000, semanticThreshold: 0.4 } },
+    { description: 'Max 3 + budget 5000 + threshold 0.4', config: { maxCapabilities: 3, maxBudget: 5000, semanticThreshold: 0.4 } },
+    { description: 'Max 5 + budget 8000', config: { maxCapabilities: 5, maxBudget: 8000 } },
   ];
 
   let bestPassRate = baseline.passRate;
   let bestRecall = baseline.recallRate;
+  let bestPrecision = baseline.precisionRate;
+  let bestTokens = baseline.avgTokenCost;
   let bestConfig = {};
 
   for (let i = 0; i < experiments.length; i++) {
@@ -345,15 +357,25 @@ async function main() {
     const result = runEval(resolver, exp.config.maxBudget || 15000);
 
     let status: string;
-    if (result.passRate > bestPassRate || (result.passRate === bestPassRate && result.recallRate > bestRecall)) {
+    // Priority: recall first (must stay 100%), then precision, then fewer tokens
+    const recallMaintained = result.passRate >= bestPassRate && result.recallRate >= bestRecall;
+    const precisionImproved = result.precisionRate > bestPrecision;
+    const tokensSaved = result.passRate === bestPassRate && result.precisionRate >= bestPrecision && result.avgTokenCost < bestTokens;
+
+    if (recallMaintained && (precisionImproved || tokensSaved)) {
       status = 'keep';
       bestPassRate = result.passRate;
       bestRecall = result.recallRate;
+      bestPrecision = result.precisionRate;
+      bestTokens = result.avgTokenCost;
       bestConfig = exp.config;
-      console.log(`   ✅ KEEP — Pass: ${(result.passRate*100).toFixed(1)}% Recall: ${(result.recallRate*100).toFixed(1)}% Precision: ${(result.precisionRate*100).toFixed(1)}%`);
+      console.log(`   ✅ KEEP — Pass: ${(result.passRate*100).toFixed(1)}% Recall: ${(result.recallRate*100).toFixed(1)}% Precision: ${(result.precisionRate*100).toFixed(1)}% Tokens: ${result.avgTokenCost.toFixed(0)}`);
+    } else if (result.passRate < bestPassRate || result.recallRate < bestRecall) {
+      status = 'discard';
+      console.log(`   ❌ DISCARD — Pass: ${(result.passRate*100).toFixed(1)}% Recall: ${(result.recallRate*100).toFixed(1)}% — recall/pass dropped`);
     } else {
       status = 'discard';
-      console.log(`   ❌ DISCARD — Pass: ${(result.passRate*100).toFixed(1)}% Recall: ${(result.recallRate*100).toFixed(1)}% Precision: ${(result.precisionRate*100).toFixed(1)}%`);
+      console.log(`   ⏸️  DISCARD — Pass: ${(result.passRate*100).toFixed(1)}% Recall: ${(result.recallRate*100).toFixed(1)}% Precision: ${(result.precisionRate*100).toFixed(1)}% — no improvement`);
     }
 
     if (result.failures.length > 0 && result.failures.length <= 5) {
