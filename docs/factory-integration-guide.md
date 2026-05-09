@@ -37,7 +37,7 @@ ACR integration adds **per-ticket capability resolution**: the Conductor analyze
 ## Prerequisites
 
 - ACR capabilities exist in a directory (e.g., `acr/migrated-final/` or a project-local `capabilities/` folder)
-- `@acr/core` and `@acr/schema` are available (add as dependencies to `ops/factory`)
+- `@agentcapabilityruntime/core` and `@agentcapabilityruntime/schema` are available (add as dependencies to `ops/factory`)
 
 ## Implementation Steps
 
@@ -45,7 +45,7 @@ ACR integration adds **per-ticket capability resolution**: the Conductor analyze
 
 ```bash
 cd ~/projects/ops/factory
-npm install @acr/core @acr/schema
+npm install @agentcapabilityruntime/core @agentcapabilityruntime/schema
 # OR if using the local monorepo:
 npm install ../../acr/packages/core ../../acr/packages/schema
 ```
@@ -57,7 +57,7 @@ Create a capability loader that initializes once at conductor startup.
 ```typescript
 // factory/src/capabilities.ts
 
-import { LODLoader, TaskResolver } from '@acr/core';
+import { LODLoader, TaskResolver } from '@agentcapabilityruntime/core';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 

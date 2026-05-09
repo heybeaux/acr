@@ -3,8 +3,8 @@ const Ajv = (_Ajv2020 as any).default || _Ajv2020;
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { capabilitySchema } from '@acr/schema';
-import type { CapabilityManifest } from '@acr/schema';
+import { capabilitySchema } from '@agentcapabilityruntime/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 export interface ValidationResult {
   valid: boolean;

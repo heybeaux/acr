@@ -13,7 +13,7 @@ import type {
   RuntimeState,
   ACREventHandler,
   CapabilityManifest,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 import { ContextManager } from './context-manager.js';
 import { LODLoader } from './loader.js';

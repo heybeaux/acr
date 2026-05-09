@@ -19,7 +19,7 @@ import type {
   EscalationRequest,
   EscalationResult,
   ProxyDecision,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 import { TriggerEngine } from './trigger-engine.js';
 import { CapabilityProxy } from './capability-proxy.js';

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ContextManager } from '../context-manager.js';
-import type { CapabilityManifest, ACREvent } from '@acr/schema';
+import type { CapabilityManifest, ACREvent } from '@agentcapabilityruntime/schema';
 
 function makeManifest(overrides: Partial<CapabilityManifest> & { name: string }): CapabilityManifest {
   return {

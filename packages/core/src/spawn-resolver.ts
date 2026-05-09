@@ -19,7 +19,7 @@ import type {
   CapabilityManifest,
   ResolutionLevel,
   ContextManagerConfig,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 export interface SpawnPolicyConfig {
   name: string;

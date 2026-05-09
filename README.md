@@ -81,7 +81,7 @@ The agent gets exactly the context it needs, nothing more.
 
 ```bash
 # Install
-npm install @acr/core @acr/schema @acr/cli
+npm install @agentcapabilityruntime/core @agentcapabilityruntime/schema @agentcapabilityruntime/cli
 
 # Migrate existing skills
 acr migrate ./skills/my-skill/SKILL.md
@@ -104,7 +104,7 @@ acr search "database" ./capabilities/
 ### OpenClaw Integration
 
 ```typescript
-import { LODLoader, TaskResolver } from '@acr/core';
+import { LODLoader, TaskResolver } from '@agentcapabilityruntime/core';
 
 // Load capabilities
 const loader = new LODLoader();
@@ -127,7 +127,7 @@ const prompt = `${systemPrompt}\n\n${context}\n\n${userMessage}`;
 ### Dynamic Context Management
 
 ```typescript
-import { ContextManager } from '@acr/core';
+import { ContextManager } from '@agentcapabilityruntime/core';
 
 const ctx = new ContextManager({
   windowSize: 128000,
@@ -154,7 +154,7 @@ await ctx.unmount('nestjs');
 ### Multi-Agent Spawning
 
 ```typescript
-import { resolveFromTask, TaskResolver, LODLoader } from '@acr/core';
+import { resolveFromTask, TaskResolver, LODLoader } from '@agentcapabilityruntime/core';
 
 // Parent resolves capabilities for child worker
 const config = resolveFromTask(taskResolver, ticket.description, {

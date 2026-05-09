@@ -6,7 +6,7 @@ import type {
   EscalationResult,
   ACREvent,
   ACREventHandler,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 /**
  * Capability Proxy — enforces permissions between agent and tool router.

@@ -1,18 +1,21 @@
 {
-  "name": "@acr/cli",
-  "version": "0.1.0",
+  "name": "@agentcapabilityruntime/cli",
+  "version": "0.2.0",
   "description": "CLI for the Agent Capability Runtime",
   "type": "module",
   "bin": {
     "acr": "dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run"
   },
   "dependencies": {
-    "@acr/core": "*",
-    "@acr/schema": "*"
+    "@agentcapabilityruntime/core": "^0.2.0",
+    "@agentcapabilityruntime/schema": "^0.2.0"
   },
   "license": "MIT"
 }

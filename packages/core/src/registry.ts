@@ -9,7 +9,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import type { CapabilityManifest } from '@acr/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 export interface RegistryIndex {
   version: number;

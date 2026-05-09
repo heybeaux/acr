@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TriggerEngine } from '../trigger-engine.js';
-import type { CapabilityManifest } from '@acr/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 function makeManifest(name: string, triggers: any[]): CapabilityManifest {
   return {

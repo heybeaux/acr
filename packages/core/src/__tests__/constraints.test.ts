@@ -4,7 +4,7 @@ import { TaskResolver } from '../task-resolver.js';
 import { LODLoader } from '../loader.js';
 import { ContextManager } from '../context-manager.js';
 import { lintCapability } from '../linter.js';
-import type { CapabilityManifest } from '@acr/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 const EXAMPLES_DIR = join(__dirname, '..', '..', '..', '..', 'examples');
 const MIGRATION_DIR = join(__dirname, '..', '..', '..', '..', 'migration-output');

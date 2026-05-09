@@ -14,7 +14,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { countTokens } from './tokenizer.js';
-import type { CapabilityManifest } from '@acr/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 export interface LintResult {
   capability: string;

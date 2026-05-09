@@ -5,7 +5,7 @@ import type {
   ResolutionLevel,
   ConflictError,
   ACRError,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 export interface ResolverOptions {
   windowSize?: number;  // default: 128000

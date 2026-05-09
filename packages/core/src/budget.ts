@@ -1,4 +1,4 @@
-import type { ResolutionPlan, ResolutionLevel } from '@acr/schema';
+import type { ResolutionPlan, ResolutionLevel } from '@agentcapabilityruntime/schema';
 
 export interface BudgetReport {
   totalBudget: number;

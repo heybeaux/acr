@@ -11,7 +11,7 @@
 import { readFile, writeFile, mkdir, unlink, readdir, rm } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
-import type { StateStore, SerializedState } from '@acr/schema';
+import type { StateStore, SerializedState } from '@agentcapabilityruntime/schema';
 
 export interface FileStateStoreConfig {
   /** Base directory for state files */

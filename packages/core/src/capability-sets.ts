@@ -5,7 +5,7 @@
  * Roles: top-level compositions that include sets, individual capabilities, and policies.
  */
 
-import type { CapabilityManifest, ResolutionLevel } from '@acr/schema';
+import type { CapabilityManifest, ResolutionLevel } from '@agentcapabilityruntime/schema';
 
 export interface CapabilitySetMember {
   name: string;

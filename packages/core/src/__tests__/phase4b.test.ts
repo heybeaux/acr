@@ -4,7 +4,7 @@ import { mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { FileStateStore } from '../file-state-store.js';
 import { Observer, createEvent } from '../observability.js';
 import { lintCapability } from '../linter.js';
-import type { SerializedState, CapabilityManifest } from '@acr/schema';
+import type { SerializedState, CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 const TEST_DIR = join(__dirname, '..', '..', '..', '..', '.test-state');
 const MIGRATION_DIR = join(__dirname, '..', '..', '..', '..', 'migration-output');

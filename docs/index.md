@@ -133,7 +133,7 @@ ACR is framework-agnostic. It provides the runtime primitives — your framework
 ### Integration Surface
 
 ```typescript
-import { ContextManager, LODLoader, TaskResolver } from '@acr/core';
+import { ContextManager, LODLoader, TaskResolver } from '@agentcapabilityruntime/core';
 
 // For chat agents: dynamic per-turn context management
 const ctx = new ContextManager({ windowSize: 128000, sessionId: 'chat-1' });
@@ -178,7 +178,7 @@ MCP tells the agent what tools exist. ACR tells the agent which tool instruction
 ## Project
 
 - **Spec:** [v1.0-rc1](https://github.com/heybeaux/acr/blob/main/specs/agent-capability-runtime.md) (784 lines)
-- **Runtime:** TypeScript monorepo — `@acr/schema`, `@acr/core`, `@acr/cli`
+- **Runtime:** TypeScript monorepo — `@agentcapabilityruntime/schema`, `@agentcapabilityruntime/core`, `@agentcapabilityruntime/cli`
 - **Tests:** 88 passing across 6 suites
 - **License:** MIT
 - **Status:** All phases complete. Seeking framework integrations and community feedback.

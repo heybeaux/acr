@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
-import type { CapabilityManifest } from '@acr/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 export interface LegacyDetectionResult {
   isLegacy: boolean;

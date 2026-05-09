@@ -9,7 +9,7 @@ A capability is a self-contained bundle of behavioral instructions, tool binding
 ## Prerequisites
 
 ```bash
-npm install -g @acr/cli
+npm install -g @agentcapabilityruntime/cli
 ```
 
 ## Step 1: Create Your Capability Directory

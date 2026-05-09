@@ -1,6 +1,6 @@
 {
-  "name": "@acr/schema",
-  "version": "0.1.0",
+  "name": "@agentcapabilityruntime/schema",
+  "version": "0.2.0",
   "description": "JSON Schema and TypeScript types for ACR capability manifests",
   "type": "module",
   "main": "dist/index.js",

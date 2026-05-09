@@ -3,7 +3,7 @@ import type {
   SerializedState,
   StateSchema,
   StateField,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 /**
  * In-memory state store implementation.

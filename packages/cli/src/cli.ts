@@ -3,15 +3,15 @@
 import { resolve as resolvePath, join } from 'node:path';
 import { existsSync, readdirSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { createInterface } from 'node:readline';
-import { validateCapability } from '@acr/core';
-import { resolve as resolveCapabilities } from '@acr/core';
-import { calculateBudget } from '@acr/core';
-import { migrateSkill } from '@acr/core';
-import { detectLegacy, scanCapabilities } from '@acr/core';
-import { lintCapability, formatLintResults } from '@acr/core';
-import { buildIndex, searchRegistry, formatSearchResults } from '@acr/core';
+import { validateCapability } from '@agentcapabilityruntime/core';
+import { resolve as resolveCapabilities } from '@agentcapabilityruntime/core';
+import { calculateBudget } from '@agentcapabilityruntime/core';
+import { migrateSkill } from '@agentcapabilityruntime/core';
+import { detectLegacy, scanCapabilities } from '@agentcapabilityruntime/core';
+import { lintCapability, formatLintResults } from '@agentcapabilityruntime/core';
+import { buildIndex, searchRegistry, formatSearchResults } from '@agentcapabilityruntime/core';
 import { parse as parseYaml } from 'yaml';
-import type { CapabilityManifest } from '@acr/schema';
+import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
 const args = process.argv.slice(2);
 const command = args[0];

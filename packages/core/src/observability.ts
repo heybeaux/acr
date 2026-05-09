@@ -15,7 +15,7 @@ import type {
   ACREventHandler,
   MountedCapability,
   ContextSnapshot,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 export interface ObservabilityConfig {
   /** Enable debug mode (verbose console output) */

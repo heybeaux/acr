@@ -3,7 +3,7 @@ import type {
   CompiledTrigger,
   TriggerMatch,
   RuntimeState,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 // ─── Lightweight Semantic Similarity ─────────────────────────────────
 // TF-IDF cosine similarity — no external API, no embeddings model needed.

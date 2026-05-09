@@ -1,16 +1,19 @@
 {
-  "name": "@acr/core",
-  "version": "0.1.0",
+  "name": "@agentcapabilityruntime/core",
+  "version": "0.2.0",
   "description": "Core library for ACR — resolver, budget calculator, validator",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run"
   },
   "dependencies": {
-    "@acr/schema": "*",
+    "@agentcapabilityruntime/schema": "^0.2.0",
     "ajv": "^8.17.0",
     "yaml": "^2.6.0"
   },

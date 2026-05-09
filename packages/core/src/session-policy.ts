@@ -3,7 +3,7 @@ import type {
   ResolutionLevel,
   DefaultPermissionPolicy,
   PermissionValue,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 /**
  * Session Policy — constrains capabilities and permissions per session type.

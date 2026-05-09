@@ -10,7 +10,7 @@
  *   const result = kit.assertMountsOn("Create a NestJS endpoint", ['nestjs']);
  */
 
-import type { CapabilityManifest, ResolutionLevel } from '@acr/schema';
+import type { CapabilityManifest, ResolutionLevel } from '@agentcapabilityruntime/schema';
 
 export interface MockCapabilityOptions {
   name?: string;

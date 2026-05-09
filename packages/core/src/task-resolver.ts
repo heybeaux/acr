@@ -12,7 +12,7 @@
 import type {
   CapabilityManifest,
   ResolutionLevel,
-} from '@acr/schema';
+} from '@agentcapabilityruntime/schema';
 
 import { LODLoader } from './loader.js';
 import { TriggerEngine } from './trigger-engine.js';

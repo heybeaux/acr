@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import type { CapabilityManifest, ResolutionLevel } from '@acr/schema';
+import type { CapabilityManifest, ResolutionLevel } from '@agentcapabilityruntime/schema';
 
 /**
  * LOD Loader — reads capability content at the requested resolution level.
