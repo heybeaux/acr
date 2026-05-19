@@ -1,0 +1,1 @@
+acr: capability faculty (Agent Capability Runtime) — LOD-based context management OS for AI agents
