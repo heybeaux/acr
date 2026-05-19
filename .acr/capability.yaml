@@ -1,0 +1,48 @@
+name: acr
+type: capability
+version: 1.0.0
+description: "Capability faculty (Agent Capability Runtime) — context management OS between agents and tools. 4 LOD levels per capability; ~98% token reduction at cold start."
+
+provides:
+  - capability-faculty
+  - lod-loader
+  - task-resolver
+  - context-manager
+
+requires:
+  tools: []
+  capabilities: []
+  context: []
+
+budget:
+  index: 20
+  summary: 200
+  standard: 1250
+  deep: 2500
+
+activation:
+  triggers:
+    - type: pattern
+      match: "(acr|agent capability runtime|LODLoader|TaskResolver|ContextManager|capability\\.yaml|territory map)"
+  trigger_logic: OR
+  co_activates: []
+  conflicts: []
+
+permissions:
+  data:
+    acr_metadata: read-only
+
+behavioral:
+  core: |
+    When discussing or working on ACR:
+    1. ACR is the capability faculty of the Sonder stack — it manages what's in the agent's context window.
+    2. Four LOD levels: index (~20 tok), summary (~95 tok), standard (~1250 tok), deep (~2500+ tok).
+    3. Project territory cards use summary:200 (2× tool-card budget) — convention specific to project-card capabilities.
+    4. Packages: @agentcapabilityruntime/core, @agentcapabilityruntime/schema, @agentcapabilityruntime/cli.
+    5. Spec status v1.0-rc1, 105 tests passing as of last README update.
+  overlays: []
+
+verification:
+  checklist:
+    - "Used 4-level LOD framing"
+    - "Did not confuse capability-cards (tools) with project-cards (territory)"
