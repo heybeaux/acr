@@ -273,12 +273,13 @@ export class OpenClawAdapter {
             const loaded = this.loader.load(cap.manifest.name, cap.resolution);
             sections.push(loaded.content);
           } catch {
-            // Fallback to behavioral.core
+            // Fallback to resolved behavioral (core + overlays)
             if (cap.manifest.behavioral?.core) {
-              sections.push(cap.manifest.behavioral.core);
+              sections.push(this.loader.resolveBehavioral(cap.manifest.name));
             }
           }
         } else if (cap.manifest.behavioral?.core) {
+          // TODO(persona): apply overlays when loader is available
           sections.push(cap.manifest.behavioral.core);
         }
       }
