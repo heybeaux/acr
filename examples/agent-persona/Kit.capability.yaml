@@ -13,11 +13,11 @@
 #   - WHAT it can touch -> permissions                 (tools + data)
 #   - WHAT it remembers -> requires.context + the engram-recall capability
 #
-# NOTE: `personality` does not yet exist as a first-class top-level block in
-# the v1 schema (additionalProperties:false rejects it). Today, persona lives
-# in `behavioral`. The "natural evolution" Beaux described is promoting this
-# into a richer first-class `persona` block — see the explainer doc. Until
-# then, everything below validates against the current schema unchanged.
+# The `persona` block below is now a first-class, schema-validated top-level
+# field (added in HEY-588). `behavioral` still carries the prose personality;
+# `persona` adds machine-readable identity/voice/values/do/dont/relationship
+# that the loader renders into context ahead of behavioral.core. Everything
+# below validates against the current schema unchanged.
 
 name: kit-persona
 type: capability-set
