@@ -10,6 +10,7 @@ import { migrateSkill } from '@agentcapabilityruntime/core';
 import { detectLegacy, scanCapabilities } from '@agentcapabilityruntime/core';
 import { lintCapability, formatLintResults } from '@agentcapabilityruntime/core';
 import { buildIndex, searchRegistry, formatSearchResults } from '@agentcapabilityruntime/core';
+import { OpenClawAdapter } from '@agentcapabilityruntime/core';
 import { parse as parseYaml } from 'yaml';
 import type { CapabilityManifest } from '@agentcapabilityruntime/schema';
 
@@ -38,6 +39,9 @@ switch (command) {
   case 'create':
     cmdCreate(args.slice(1));
     break;
+  case 'persona':
+    cmdPersona(args.slice(1));
+    break;
   case 'help':
   case '--help':
   case '-h':
@@ -65,6 +69,7 @@ function printHelp(): void {
     migrate <SKILL.md>       Generate capability from existing skill file
     budget <path>            Calculate context budget for a capability/set/role
     resolve <path>           Show dependency resolution plan
+    persona <path>           Render the boot system prompt for a persona capability
 
   Options:
     --window <tokens>        Context window size (default: 128000)
@@ -345,6 +350,38 @@ function cmdResolve(args: string[]): void {
   }
 
   console.log(`\n  Total: ${plan.totalBudget} tokens (${(plan.utilization * 100).toFixed(1)}% of ${windowSize.toLocaleString()} window)`);
+}
+
+// ─── Persona Boot ────────────────────────────────────────────────────────
+
+function cmdPersona(args: string[]): void {
+  const formatJson = args.includes('--format') && args[args.indexOf('--format') + 1] === 'json';
+  const pathArg = args.find(a => !a.startsWith('--') && a !== 'json' && a !== 'tree');
+
+  if (!pathArg) {
+    console.error('Usage: acr persona <path> [--format json|tree]');
+    console.error('  Renders the boot system prompt for a persona capability directory.');
+    process.exit(1);
+  }
+
+  const dir = resolvePath(pathArg);
+  if (!existsSync(join(dir, 'capability.yaml'))) {
+    console.error(`No capability.yaml found in ${dir}`);
+    process.exit(1);
+  }
+
+  const adapter = new OpenClawAdapter();
+  const boot = adapter.bootPersona(dir);
+
+  if (formatJson) {
+    console.log(JSON.stringify(boot, null, 2));
+    return;
+  }
+
+  console.log(`\n🎭 Persona boot — ${boot.name} (~${boot.tokenEstimate} tokens)\n`);
+  console.log('─'.repeat(60));
+  console.log(boot.systemPrompt);
+  console.log('─'.repeat(60));
 }
 
 // ─── Interactive Create Wizard ───────────────────────────────────────────

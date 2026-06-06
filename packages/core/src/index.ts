@@ -10,7 +10,7 @@ export { ContextManager } from './context-manager.js';
 export { TriggerEngine } from './trigger-engine.js';
 export { CapabilityProxy } from './capability-proxy.js';
 export { InMemoryStateStore, serializeState, formatStateForContext } from './state-store.js';
-export { LODLoader, type LoadedCapability } from './loader.js';
+export { LODLoader, renderPersona, type LoadedCapability } from './loader.js';
 export { applySessionPolicy, checkCapabilityPolicy, getEffectivePermission, type SessionPolicy, type PolicyResult } from './session-policy.js';
 export { AgentAPI, type AgentAPIConfig } from './agent-api.js';
 export { countTokens, estimateTokensWordBased, countTokensSafe } from './tokenizer.js';
@@ -23,3 +23,11 @@ export { resolveSpawnConfig, resolveFromTask, type SpawnCapabilityRequest, type 
 export { resolveCapabilitySet, resolveRole, type CapabilitySetDefinition, type RoleDefinition, type CapabilitySetMember } from './capability-sets.js';
 export { ACRTestKit, type MockCapabilityOptions, type MountAssertion, type ResolutionAssertion } from './testkit.js';
 export type { ModelPreferenceMap } from './task-resolver.js';
+
+// Adapters
+export {
+  OpenClawAdapter,
+  type OpenClawAdapterConfig,
+  type SkillLoadResult,
+  type TurnResult,
+} from './adapters/openclaw.js';
