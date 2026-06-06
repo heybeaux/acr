@@ -35,7 +35,7 @@ import type {
 } from '@agentcapabilityruntime/schema';
 
 import { ContextManager } from '../context-manager.js';
-import { LODLoader } from '../loader.js';
+import { LODLoader, renderPersona } from '../loader.js';
 import { TriggerEngine } from '../trigger-engine.js';
 import { detectLegacy } from '../legacy.js';
 import { migrateSkill } from '../migrate.js';
@@ -173,6 +173,35 @@ export class OpenClawAdapter {
   }
 
   /**
+   * Boot an agent from a persona capability directory.
+   *
+   * This is the "send a Kit.capability.yaml to a new machine and the agent
+   * boots with that identity" path. It:
+   *   1. Registers the persona capability (and is reusable for per-client variants)
+   *   2. Renders the structured persona block + behavioral profile (core + overlays)
+   *      via the loader's resolveAgentProfile
+   *   3. Returns a ready-to-use system prompt section the runtime injects at boot
+   *
+   * The capability tree (requires.capabilities) is loaded separately via
+   * loadSkillDirs and surfaces per-turn through onMessage; this method produces
+   * the stable identity that leads the system prompt.
+   */
+  bootPersona(dir: string): { name: string; systemPrompt: string; tokenEstimate: number } {
+    const manifest = this.loader.register(dir);
+    this.ctx.registerCapability(manifest);
+    this.skillDirs.set(manifest.name, dir);
+
+    const profile = this.loader.resolveAgentProfile(manifest.name);
+    const systemPrompt = profile.trim();
+
+    return {
+      name: manifest.name,
+      systemPrompt,
+      tokenEstimate: Math.ceil(systemPrompt.length / 4),
+    };
+  }
+
+  /**
    * Process a user message — the per-turn hook.
    *
    * This replaces OpenClaw's static skill injection with dynamic context:
@@ -267,6 +296,12 @@ export class OpenClawAdapter {
 
         sections.push(`\n## ${cap.manifest.name} [${cap.resolution}]`);
 
+        // Persona block (structured identity) precedes any behavioral content.
+        const personaSection = renderPersona(cap.manifest.persona);
+        if (personaSection) {
+          sections.push(personaSection);
+        }
+
         // Try to load actual content from disk
         if (dir) {
           try {
@@ -279,7 +314,6 @@ export class OpenClawAdapter {
             }
           }
         } else if (cap.manifest.behavioral?.core) {
-          // TODO(persona): apply overlays when loader is available
           sections.push(cap.manifest.behavioral.core);
         }
       }
