@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import type { CapabilityManifest, Persona, ResolutionLevel } from '@agentcapabilityruntime/schema';
+import type { CapabilityManifest, Persona, ResolutionLevel, ACRError } from '@agentcapabilityruntime/schema';
 
 /**
  * LOD Loader — reads capability content at the requested resolution level.
@@ -42,6 +42,7 @@ export class LODLoader {
   private readonly paths: Map<string, string> = new Map();
   private readonly manifests: Map<string, CapabilityManifest> = new Map();
   private readonly cache: Map<string, LoadedCapability> = new Map();
+  private readonly behavioralCache: Map<string, string> = new Map();
 
   /**
    * Register a capability directory.
@@ -176,10 +177,69 @@ export class LODLoader {
       const loaded = this.load(name, resolution);
       sections.push(`---\n## ${name} [${loaded.resolution}]\n`);
       sections.push(loaded.content);
+
+      // Append resolved behavioral (core + overlays) if the manifest has behavioral.core
+      if (loaded.manifest.behavioral?.core) {
+        const behavioral = this.resolveBehavioral(name);
+        sections.push('\n### Behavioral\n');
+        sections.push(behavioral);
+      }
+
       sections.push('');
     }
 
     return sections.join('\n');
+  }
+
+  /**
+   * Resolve and merge behavioral.core with its overlays for a capability.
+   * Returns core unchanged if no overlays. Overlays resolved from
+   * <capabilityDir>/overlays/<ref>.md, merged in ascending priority order.
+   */
+  resolveBehavioral(name: string): string {
+    const cached = this.behavioralCache.get(name);
+    if (cached !== undefined) return cached;
+
+    const manifest = this.manifests.get(name);
+    if (!manifest) {
+      throw new Error(`Capability "${name}" not registered with loader`);
+    }
+
+    if (!manifest.behavioral?.core) {
+      const result = manifest.description;
+      this.behavioralCache.set(name, result);
+      return result;
+    }
+
+    const overlays = manifest.behavioral.overlays;
+    if (!overlays || overlays.length === 0) {
+      const result = manifest.behavioral.core;
+      this.behavioralCache.set(name, result);
+      return result;
+    }
+
+    const dir = this.paths.get(name)!;
+    const sorted = [...overlays].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+
+    let composed = manifest.behavioral.core;
+    for (const overlay of sorted) {
+      const overlayPath = join(dir, 'overlays', `${overlay.ref}.md`);
+      if (existsSync(overlayPath)) {
+        const content = readFileSync(overlayPath, 'utf-8');
+        composed += `\n\n## Overlay: ${overlay.ref}\n${content}`;
+      } else if (overlay.optional) {
+        // silently skip missing optional overlays
+      } else {
+        const err: ACRError = {
+          code: 'MANIFEST_INVALID',
+          message: `Capability "${name}" requires overlay "${overlay.ref}" but overlays/${overlay.ref}.md was not found`,
+        };
+        throw err;
+      }
+    }
+
+    this.behavioralCache.set(name, composed);
+    return composed;
   }
 
   /**
@@ -201,6 +261,7 @@ export class LODLoader {
    */
   clearCache(): void {
     this.cache.clear();
+    this.behavioralCache.clear();
   }
 
   /**

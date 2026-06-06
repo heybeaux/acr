@@ -551,6 +551,7 @@ export class ContextManager {
       }
 
       if (entry.manifest.behavioral?.core) {
+        // Overlays are applied in the loader-backed path (LODLoader.resolveBehavioral), not here.
         sections.push(entry.manifest.behavioral.core);
       }
 

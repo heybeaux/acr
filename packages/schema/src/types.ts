@@ -191,7 +191,8 @@ export type ACRErrorCode =
   | 'PERMISSION_DENIED'
   | 'STATE_LOST'
   | 'TOOL_ERROR'
-  | 'VERIFICATION_FAILED';
+  | 'VERIFICATION_FAILED'
+  | 'MANIFEST_INVALID';
 
 export interface ACRError {
   code: ACRErrorCode;
