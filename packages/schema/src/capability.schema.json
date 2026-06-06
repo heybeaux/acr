@@ -313,6 +313,19 @@
         }
       },
       "additionalProperties": false
+    },
+    "persona": {
+      "type": "object",
+      "description": "Structured identity block — who the agent is, how it speaks, and how it relates to the user",
+      "properties": {
+        "identity":     { "type": "string", "description": "Who the agent is — name, role, one-line essence", "maxLength": 500 },
+        "voice":        { "type": "string", "description": "How the agent speaks — tone, cadence, vocabulary", "maxLength": 500 },
+        "values":       { "type": "array", "items": { "type": "string" }, "description": "Core operating principles / values" },
+        "do":           { "type": "array", "items": { "type": "string" }, "description": "Behaviors to exhibit" },
+        "dont":         { "type": "array", "items": { "type": "string" }, "description": "Behaviors to avoid" },
+        "relationship": { "type": "string", "description": "Relationship/context with the user or client", "maxLength": 1000 }
+      },
+      "additionalProperties": false
     }
   },
   "if": {

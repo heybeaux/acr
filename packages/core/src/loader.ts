@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import type { CapabilityManifest, ResolutionLevel } from '@agentcapabilityruntime/schema';
+import type { CapabilityManifest, Persona, ResolutionLevel } from '@agentcapabilityruntime/schema';
 
 /**
  * LOD Loader — reads capability content at the requested resolution level.
@@ -204,6 +204,33 @@ export class LODLoader {
   }
 
   /**
+   * Compose the full agent profile for a capability: persona section (if present)
+   * followed by behavioral core. Returns the combined string.
+   *
+   * This is the single method call sites should use when assembling an agent's
+   * identity + instructions. If persona is absent the result equals behavioral.core.
+   */
+  resolveAgentProfile(name: string): string {
+    const manifest = this.manifests.get(name);
+    if (!manifest) {
+      throw new Error(`Capability "${name}" not registered with loader`);
+    }
+
+    const parts: string[] = [];
+
+    const personaSection = renderPersona(manifest.persona);
+    if (personaSection) {
+      parts.push(personaSection);
+    }
+
+    if (manifest.behavioral?.core) {
+      parts.push(manifest.behavioral.core);
+    }
+
+    return parts.join('\n\n');
+  }
+
+  /**
    * Get stats about the loader.
    */
   get stats() {
@@ -212,6 +239,43 @@ export class LODLoader {
       cached: this.cache.size,
     };
   }
+}
+
+/**
+ * Render a Persona object to a markdown section.
+ * Returns an empty string if the persona has no populated fields.
+ */
+export function renderPersona(persona: Persona | undefined): string {
+  if (!persona) return '';
+
+  const lines: string[] = [];
+
+  if (persona.identity) lines.push(`**Identity:** ${persona.identity}`);
+  if (persona.voice) lines.push(`**Voice:** ${persona.voice}`);
+
+  if (persona.values?.length) {
+    lines.push('');
+    lines.push('**Values:**');
+    for (const v of persona.values) lines.push(`- ${v}`);
+  }
+
+  if (persona.do?.length) {
+    lines.push('');
+    lines.push('**Do:**');
+    for (const d of persona.do) lines.push(`- ${d}`);
+  }
+
+  if (persona.dont?.length) {
+    lines.push('');
+    lines.push("**Don't:**");
+    for (const d of persona.dont) lines.push(`- ${d}`);
+  }
+
+  if (persona.relationship) lines.push(`\n**Relationship:** ${persona.relationship}`);
+
+  if (lines.length === 0) return '';
+
+  return `## Persona\n${lines.join('\n')}`;
 }
 
 function estimateTokens(text: string): number {

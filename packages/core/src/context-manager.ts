@@ -1,3 +1,4 @@
+import { renderPersona } from './loader.js';
 import type {
   CapabilityManifest,
   ResolutionLevel,
@@ -540,6 +541,12 @@ export class ContextManager {
 
       if (entry.state) {
         sections.push(formatStateForContext(entry.state));
+        sections.push('');
+      }
+
+      const personaSection = renderPersona(entry.manifest.persona);
+      if (personaSection) {
+        sections.push(personaSection);
         sections.push('');
       }
 
