@@ -81,6 +81,15 @@ export interface Behavioral {
   overlays?: Overlay[];
 }
 
+export interface Persona {
+  identity?: string;
+  voice?: string;
+  values?: string[];
+  do?: string[];
+  dont?: string[];
+  relationship?: string;
+}
+
 export interface StateSchema {
   version: number;
   max_size_tokens: number;
@@ -136,6 +145,7 @@ export interface CapabilityManifest {
   activation?: Activation;
   permissions?: Permissions;
   behavioral?: Behavioral;       // required for type: 'capability'
+  persona?: Persona;
   state_schema?: StateSchema;
   verification?: Verification;
   constraints?: string[];        // hard rules that MUST be followed — surfaced at summary LOD or higher
